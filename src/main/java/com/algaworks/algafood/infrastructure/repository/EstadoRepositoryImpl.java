@@ -20,7 +20,7 @@ public class EstadoRepositoryImpl implements EstadoRepository {
     @Override
     public List<Estado> todas(){
         // Traz todos os objectos de Cozinha | Representa apenas a quary
-        return  manager.createQuery("from Permissao", Estado.class).getResultList();
+        return  manager.createQuery("from Estado", Estado.class).getResultList();
     }
 
     @Override
