@@ -18,11 +18,10 @@
 	<description>Delivery food API</description>
 
 	<properties>
-		<java.version>17</java.version>
+		<java.version>17</java.version>  <!--Estamos subscrevendo  versão do Java  no Parent -->
 	</properties>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId> <!-- Spring MVC -->
@@ -46,8 +45,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
+			<groupId>org.springframework.boot</groupId> <!-- Categoria -->
+			<artifactId>spring-boot-starter-test</artifactId>  <!-- Dependência/arqu .jar-->
 			<scope>test</scope>
 		</dependency>
 
