@@ -18,7 +18,6 @@ public class EstadoController {
 
     @GetMapping // Mapeamos as requ HTTP do tipo GET para este método
     public List<Estado> listar(){
-
         return estadoRepository.todas();
     }
 }

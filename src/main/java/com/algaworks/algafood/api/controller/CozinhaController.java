@@ -1,10 +1,12 @@
 package com.algaworks.algafood.api.controller;
 
+import com.algaworks.algafood.api.model.CozinhasXmlWrapper;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,18 +22,22 @@ public class CozinhaController {
     @Autowired
     private CozinhaRepository cozinhaRepository;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE) // Requisições com HTTP do tipo Get vão cair aqui...
+    @GetMapping
     public List<Cozinha> listar(){
-        System.out.printf("LIST 1\n");
+
         return cozinhaRepository.todas();
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE) // Requisições com HTTP do tipo Get vão cair aqui...
-    public List<Cozinha> listar2(){
-        System.out.printf("LIST 2\n");
-        return cozinhaRepository.todas();
+    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
+    public CozinhasXmlWrapper listarXML(){
+
+        return new CozinhasXmlWrapper(cozinhaRepository.todas());
     }
 
+    @GetMapping(value = "/{cozinhaId}") // Mapeamos o método e complementamos a nossa URI ficando assim /cozinhas/{cozinhaID}
+    public Cozinha buscar(@PathVariable Long cozinhaId){  // Será feito um bind de forma automática
+        return cozinhaRepository.porId(cozinhaId);
+    }
 
 }
 
