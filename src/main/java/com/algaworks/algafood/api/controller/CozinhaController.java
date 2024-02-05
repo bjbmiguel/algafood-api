@@ -44,11 +44,15 @@ public class CozinhaController {
     // Usmos a classe ResponseEntity para costumizar respostas HTTP...
     public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId) {  // Será feito um bind de forma automática
 
-        HttpHeaders httpHeaders = new HttpHeaders(); //Usamos para adicionar cabeçalhos da resposta
-        httpHeaders.add(HttpHeaders.LOCATION, "http://api.algafood.local:8080/cozinhas"); //Adicionamos um location
+        Cozinha cozinha = cozinhaRepository.porId(cozinhaId);
 
-        // O status Found - 302 indica que o recurso foi movido para outra URI...
-        return ResponseEntity.status(HttpStatus.FOUND).headers(httpHeaders).build();
+        if (cozinha != null) {
+
+            return ResponseEntity.ok().body(cozinha); // O método body representa o corpo da resposta.
+        }
+
+        //return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.notFound().build(); //Optimizando a resposta...
 
     }
 

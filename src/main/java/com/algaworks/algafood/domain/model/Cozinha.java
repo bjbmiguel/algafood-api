@@ -15,7 +15,6 @@ import java.util.Objects;
 @Entity // A classe representa uma entidade
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@JsonRootName("gastronia") // Usamos para customizar o nome root do nosso recurso na representação XML
 public class Cozinha {
 
     @Id
