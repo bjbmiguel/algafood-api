@@ -3,6 +3,7 @@ package com.algaworks.algafood.domain.service;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Restaurante;
+import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,25 +19,40 @@ public class CadastratarRestauranteService {
     @Autowired
     RestauranteRepository restauranteRepository;
 
+    @Autowired
+    CozinhaRepository cozinhaRepository;
+
     public List<Restaurante> todos() {
 
         return restauranteRepository.listar();
     }
 
-    public Restaurante buscar(Long restauranteId) {  // Será feito um bind de forma automática
+    public Restaurante salvar(Restaurante restaurante) {
+
+        Long cozinhaId = restaurante.getCozinha().getId();
+        Cozinha cozinha = cozinhaRepository.porId(cozinhaId);
+
+        if (cozinha == null) {
+
+            throw new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com o código %d", cozinhaId));
+        }
+
+        restaurante.setCozinha(cozinha);
+        return restauranteRepository.salvar(restaurante);
+    }
+
+
+    public Restaurante buscar(Long restauranteId) {
 
         try {
 
             return restauranteRepository.porId(restauranteId);
 
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de Restaurante com o código %d", restauranteId));
+
+            throw new EntidadeNaoEncontradaException(String.format("Não existe cadastro de Restaurante com o código %d", restauranteId));
+
         }
-    }
-
-    public Restaurante salvar(Restaurante restaurante){
-
-        return restauranteRepository.salvar(restaurante);
     }
 
 }

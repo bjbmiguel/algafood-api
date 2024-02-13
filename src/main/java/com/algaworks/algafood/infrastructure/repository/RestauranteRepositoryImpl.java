@@ -28,17 +28,10 @@ public class RestauranteRepositoryImpl implements RestauranteRepository {
         return manager.merge(restaurante); //Vai retornar o objecto persistido..., ou seja, com o ID
     }
 
+
     @Override
     public Restaurante porId(Long id) {
-
-        Restaurante restaurante = manager.find(Restaurante.class, id);
-
-        if (restaurante != null) {
-
-            return restaurante;
-        }
-
-        throw  new EmptyResultDataAccessException(1);
+        return manager.find(Restaurante.class, id);
     }
 
     @Override
@@ -47,4 +40,6 @@ public class RestauranteRepositoryImpl implements RestauranteRepository {
         Restaurante restaurante = porId(restauranteId);
         manager.remove(restaurante);
     }
+
+
 }

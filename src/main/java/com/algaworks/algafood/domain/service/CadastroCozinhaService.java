@@ -3,6 +3,7 @@ package com.algaworks.algafood.domain.service;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cozinha;
+import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,7 +21,6 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
         return cozinhaRepository.adicionar(cozinha);
     }
 
-
     public void excluir(Long cozinhaId) {
 
         try {
@@ -35,4 +35,16 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
             throw new EntidadeEmUsoException(String.format("Cozinha de código %d não pode ser removida, pós está em uso", cozinhaId));
         }
     }
+
+    public Cozinha buscar(Long cozinhaId) {
+
+        try {
+            return cozinhaRepository.porId(cozinhaId);
+
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de Cozinha com o código %d", cozinhaId));
+        }
+    }
+
+
 }
