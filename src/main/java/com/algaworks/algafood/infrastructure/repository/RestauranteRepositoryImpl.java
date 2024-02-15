@@ -38,6 +38,11 @@ public class RestauranteRepositoryImpl implements RestauranteRepository {
     @Transactional
     public void remover(Long restauranteId) {
         Restaurante restaurante = porId(restauranteId);
+
+        if (restaurante == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+
         manager.remove(restaurante);
     }
 

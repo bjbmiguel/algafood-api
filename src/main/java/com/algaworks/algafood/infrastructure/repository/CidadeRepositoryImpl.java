@@ -4,6 +4,7 @@ import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.model.Permissao;
 import com.algaworks.algafood.domain.repository.CidadeRepository;
 import com.algaworks.algafood.domain.repository.PermissaoRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -20,7 +21,7 @@ public class CidadeRepositoryImpl implements CidadeRepository {
     @Override
     public List<Cidade> todas(){
         // Traz todos os objectos de Cozinha | Representa apenas a quary
-        return  manager.createQuery("from Permissao", Cidade.class).getResultList();
+        return  manager.createQuery("from Cidade", Cidade.class).getResultList();
     }
 
     @Override
@@ -30,13 +31,19 @@ public class CidadeRepositoryImpl implements CidadeRepository {
     }
 
     @Override
-    public Cidade porId(Long id){
+    public Cidade buscar(Long id){
         return manager.find(Cidade.class, id);
     }
-    @Override
     @Transactional
-    public void remover(Cidade cidade){
-        cidade = porId(cidade.getId());
+    @Override
+    public void remover(Long id) {
+        Cidade cidade = buscar(id);
+
+        if (cidade == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+
         manager.remove(cidade);
     }
+
 }

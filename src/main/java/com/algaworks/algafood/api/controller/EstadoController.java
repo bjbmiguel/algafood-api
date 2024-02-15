@@ -2,7 +2,6 @@ package com.algaworks.algafood.api.controller;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
-import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Estado;
 import com.algaworks.algafood.domain.service.CadastrarEstadoService;
 import org.springframework.beans.BeanUtils;
@@ -71,7 +70,7 @@ public class EstadoController {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
         try {
 
-            //cadastrarEstadoService.excluir(estadoId);
+            cadastrarEstadoService.excluir(estadoId);
             return ResponseEntity.noContent().build();
 
         }catch (EntidadeNaoEncontradaException e){
