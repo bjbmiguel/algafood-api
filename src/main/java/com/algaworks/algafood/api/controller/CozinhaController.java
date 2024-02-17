@@ -58,12 +58,19 @@ public class CozinhaController {
 
     }
 
-   /* @GetMapping(value = "/por-nome")
-    //--> nome --> nome
-    public List<Cozinha> buscarPorNome(@RequestParam("nome") String nome) { //o nome virá por "query String"
+    @GetMapping(value = "/por-nome")
+    //--> nome --> nome - Retorna uma lista
+    public List<Cozinha> buscarPorNome(String nome) { //o nome virá por "query String"
 
-      return  cozinhaRepository.consultarPorNome(nome);
-    }*/
+      return  cozinhaRepository.findTodasByNomeContaining(nome);
+    }
+
+    @GetMapping(value = "/unico-por-nome")
+    //--> nome --> nome Retorna uma única instância
+    public Optional<Cozinha> buscarPorNomeUnico(String nome) { //o nome virá por "query String"
+
+        return  cozinhaRepository.findByNome(nome);
+    }
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
     @ResponseStatus(HttpStatus.CREATED) //Costumizamos o status da resposta... para 201

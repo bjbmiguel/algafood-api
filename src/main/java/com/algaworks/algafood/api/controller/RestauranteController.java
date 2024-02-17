@@ -3,6 +3,7 @@ package com.algaworks.algafood.api.controller;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
+import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,8 +26,10 @@ public class RestauranteController {
 
     @Autowired
     CadastratarRestauranteService cadastratarRestauranteService;
+
     @Autowired
-    CadastroCozinhaService cadastroCozinhaService;
+    RestauranteRepository restauranteRepository;
+
 
 
     @GetMapping
@@ -33,6 +37,19 @@ public class RestauranteController {
 
         return cadastratarRestauranteService.todos();
     }
+
+    @GetMapping("/por-taxa-frete")
+    public List<Restaurante> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
+
+        return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
+    }
+
+    @GetMapping("/por-nome")
+    public List<Restaurante> restaurantePorNome(String nome, Long cozinhaId) {
+
+        return restauranteRepository.findByNomeContainingAndCozinhaId(nome, cozinhaId);
+    }
+
 
     @GetMapping(value = "/{restauranteId}")
     public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {

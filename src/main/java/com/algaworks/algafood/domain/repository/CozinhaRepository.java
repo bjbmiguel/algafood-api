@@ -5,10 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CozinhaRepository extends JpaRepository<Cozinha, Long> {
     //O SDP irá fornecer em tempo de execução de alguns métodos como , save, delete, find, findALL
+    List<Cozinha> findTodasByNomeContaining(String nome);
 
-   // List<Cozinha> consultarPorNome(String nome); // Um repository tem que permitir buscar uma cozinha pelo nome...
+    Optional<Cozinha> findByNome(String nome);
+
 }
