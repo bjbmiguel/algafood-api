@@ -1,13 +1,14 @@
 package com.algaworks.algafood.domain.repository;
 
 import com.algaworks.algafood.domain.model.Cozinha;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface CozinhaRepository {
+@Repository
+public interface CozinhaRepository extends JpaRepository<Cozinha, Long> {
+    //O SDP irá fornecer em tempo de execução de alguns métodos como , save, delete, find, findALL
 
-    List<Cozinha> todas(); // Um repository tem que permitir listar todas as cozinhas...
-    Cozinha porId(Long id); // Um repository tem que permitir buscar uma cozinha pelo ID
-    Cozinha adicionar(Cozinha cozinha); // Um repository tem que permitir salvar uma cozinha
-    void remover(Long cozinhaId); // Um repository tem que permitir salvar uma cozinha
+   // List<Cozinha> consultarPorNome(String nome); // Um repository tem que permitir buscar uma cozinha pelo nome...
 }

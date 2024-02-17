@@ -17,6 +17,7 @@ import org.springframework.http.client.reactive.ClientHttpResponseDecorator;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/cozinhas")
 // Esta anotação é usada para mapear as req HTTP feitas neste controller, ou seja, todas as reqs. /cozinhas vão cair aqui...
@@ -36,7 +37,7 @@ public class CozinhaController {
     @GetMapping
     public List<Cozinha> listar() {
 
-        return cozinhaRepository.todas();
+        return cozinhaRepository.findAll();
     }
 
 
@@ -44,17 +45,25 @@ public class CozinhaController {
     // Usmos a classe ResponseEntity para costumizar respostas HTTP...
     public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId) {  // Será feito um bind de forma automática
 
-        Cozinha cozinha = cozinhaRepository.porId(cozinhaId);
+        //Este método nunca vai retornar um valor "null" sempre irá retornar um optional que pode ou ter uma cozinha...
+        Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
 
-        if (cozinha != null) {
+        if (cozinha.isEmpty()) {
 
-            return ResponseEntity.ok().body(cozinha); // O método body representa o corpo da resposta.
+            return ResponseEntity.ok().body(cozinha.get()); // O método body representa o corpo da resposta.
         }
 
         //return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         return ResponseEntity.notFound().build(); //Optimizando a resposta...
 
     }
+
+   /* @GetMapping(value = "/por-nome")
+    //--> nome --> nome
+    public List<Cozinha> buscarPorNome(@RequestParam("nome") String nome) { //o nome virá por "query String"
+
+      return  cozinhaRepository.consultarPorNome(nome);
+    }*/
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
     @ResponseStatus(HttpStatus.CREATED) //Costumizamos o status da resposta... para 201
@@ -68,21 +77,20 @@ public class CozinhaController {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
 
         //Pegando a cozinha existente...
-        Cozinha cozinhaAtual = cozinhaRepository.porId(cozinhaId);
+        Optional<Cozinha> cozinhaAtual = cozinhaRepository.findById(cozinhaId);
 
-        if (cozinhaAtual != null) {
+        if (cozinhaAtual.isPresent()) {
             //BeanUtils esta classe é do Spring...
             // O id será ignorado...
-            BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
-            cadastroCozinhaService.salvar(cozinhaAtual);
-            return ResponseEntity.ok(cozinhaAtual); //O método body representa o corpo da resposta.
+            BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");
+           Cozinha cozinhaSalva = cadastroCozinhaService.salvar(cozinhaAtual.get());
+            return ResponseEntity.ok(cozinhaSalva); //O método body representa o corpo da resposta.
         }
         return ResponseEntity.notFound().build(); //Optimizando a resposta...
     }
 
-
     @DeleteMapping(value = "/{cozinhaId}")
-    public ResponseEntity<Cozinha> remover(@PathVariable Long cozinhaId) {
+    public ResponseEntity<?> remover(@PathVariable Long cozinhaId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
         try {
 
@@ -90,10 +98,10 @@ public class CozinhaController {
             return ResponseEntity.noContent().build();
 
         }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.notFound().build(); //A entidade não foi encontrada...
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); //A entidade não foi encontrada...
         } catch (EntidadeEmUsoException e){
             // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 

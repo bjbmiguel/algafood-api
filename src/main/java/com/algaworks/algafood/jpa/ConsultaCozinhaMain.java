@@ -22,7 +22,7 @@ public class ConsultaCozinhaMain {
         //Pegamos um bean do tipo CadastroCozinha com base no applicationContext
         CozinhaRepository cozinhas = applicationContext.getBean(CozinhaRepository.class);
 
-        List<Cozinha> todasCozinhas = cozinhas.todas();
+        List<Cozinha> todasCozinhas = cozinhas.findAll();
 
         todasCozinhas.forEach(cozinha -> {
 

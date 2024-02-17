@@ -21,7 +21,7 @@ public class InclusaoEstado {
 
         Estado estado = new Estado();
         estado.setNome("Benguela");
-        estado = estadoRepository.adicionar(estado);
+        estado = estadoRepository.save(estado);
 
         System.out.printf("%d - %s\n", estado.getId(), estado.getNome());
 

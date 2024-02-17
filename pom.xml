@@ -29,7 +29,7 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId> <!-- JPA/ Hibernate -->
+			<artifactId>spring-boot-starter-data-jpa</artifactId> <!-- SDP/JPA/ Hibernate -->
 		</dependency>
 
 		<dependency>

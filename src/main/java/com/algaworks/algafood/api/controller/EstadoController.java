@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/estados")
 @RestController // Definimos a classe Estado como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
@@ -27,11 +28,11 @@ public class EstadoController {
     @GetMapping(value = "/{estadoId}")
     public ResponseEntity<Estado> buscar(@PathVariable Long estadoId) {
 
-        Estado estado = cadastrarEstadoService.buscar(estadoId);
+        Optional<Estado> estado = cadastrarEstadoService.buscar(estadoId);
 
-       if (estado != null) {
+       if (estado.isPresent()) {
 
-            return ResponseEntity.ok().body(estado); // O método body representa o corpo da resposta.
+            return ResponseEntity.ok().body(estado.get()); // O método body representa o corpo da resposta.
         }
 
        return ResponseEntity.notFound().build(); //Optimizando a resposta... 404
@@ -52,21 +53,21 @@ public class EstadoController {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
 
         //Pegando a cozinha existente...
-        Estado estadoAtual = cadastrarEstadoService.buscar(estadoId);
+        Optional<Estado> estadoAtual = cadastrarEstadoService.buscar(estadoId);
 
-        if (estadoAtual != null) {
+        if (estadoAtual.isPresent()) {
             //BeanUtils esta classe é do Spring...
             // O id será ignorado...
-            BeanUtils.copyProperties(estado, estadoAtual, "id");
-            cadastrarEstadoService.salvar(estadoAtual);
-            return ResponseEntity.ok(estadoAtual); //O método body representa o corpo da resposta.
+            BeanUtils.copyProperties(estado, estadoAtual.get(), "id");
+           Estado estadoSalvo = cadastrarEstadoService.salvar(estadoAtual.get());
+            return ResponseEntity.ok(estadoSalvo); //O método body representa o corpo da resposta.
         }
 
         return ResponseEntity.notFound().build(); //Optimizando a resposta...
     }
 
     @DeleteMapping(value = "/{estadoId}")
-    public ResponseEntity<Estado> remover(@PathVariable Long estadoId) {
+    public ResponseEntity<?> remover(@PathVariable Long estadoId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
         try {
 
@@ -74,10 +75,10 @@ public class EstadoController {
             return ResponseEntity.noContent().build();
 
         }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.notFound().build(); //A entidade não foi encontrada...
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); //A entidade não foi encontrada...
         } catch (EntidadeEmUsoException e){
             // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 

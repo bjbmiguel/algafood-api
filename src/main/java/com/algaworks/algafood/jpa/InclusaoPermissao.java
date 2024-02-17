@@ -24,7 +24,7 @@ public class InclusaoPermissao {
         permissao.setDescricao("Usuário com permissão de cadastrar uma cozinha.");
 
 
-        permissao = permissaoRepository.adicionar(permissao);
+        permissao = permissaoRepository.save(permissao);
 
         System.out.printf("%d - %s\n", permissao.getId(), permissao.getNome());
 

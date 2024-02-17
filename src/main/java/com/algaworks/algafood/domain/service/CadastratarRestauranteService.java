@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CadastratarRestauranteService {
@@ -26,29 +27,26 @@ public class CadastratarRestauranteService {
 
     public List<Restaurante> todos() {
 
-        return restauranteRepository.listar();
+        return restauranteRepository.findAll();
     }
 
     public Restaurante salvar(Restaurante restaurante) {
 
         Long cozinhaId = restaurante.getCozinha().getId();
-        Cozinha cozinha = cozinhaRepository.porId(cozinhaId);
-
-        if (cozinha == null) {
-
-            throw new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com o código %d", cozinhaId));
-        }
+        // O método "orElseThrow" retorna o object, caso contrário alguma exceção pode ser lanaçada...
+        Cozinha cozinha = cozinhaRepository.findById(cozinhaId).
+                orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com o código %d", cozinhaId)));
 
         restaurante.setCozinha(cozinha);
-        return restauranteRepository.salvar(restaurante);
+        return restauranteRepository.save(restaurante);
     }
 
 
-    public Restaurante buscar(Long restauranteId) {
+    public Optional<Restaurante> buscar(Long restauranteId) {
 
         try {
 
-            return restauranteRepository.porId(restauranteId);
+            return restauranteRepository.findById(restauranteId);
 
         } catch (EmptyResultDataAccessException e) {
 
@@ -60,7 +58,7 @@ public class CadastratarRestauranteService {
     public void excluir(Long restauranteId) {
         try {
 
-            restauranteRepository.remover(restauranteId);
+            restauranteRepository.deleteById(restauranteId);
 
         } catch (EmptyResultDataAccessException e) {
             throw new EntidadeNaoEncontradaException(

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequestMapping("/restaurantes")
 @RestController
@@ -36,14 +37,14 @@ public class RestauranteController {
     @GetMapping(value = "/{restauranteId}")
     public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {
 
-        try {
 
-            Restaurante restaurante = cadastratarRestauranteService.buscar(restauranteId);
-            return ResponseEntity.ok().body(restaurante);
+        Optional<Restaurante> restaurante = cadastratarRestauranteService.buscar(restauranteId);
 
-        } catch (EntidadeNaoEncontradaException e) {
-            return ResponseEntity.notFound().build();
+        if (restaurante.isPresent()) {
+            return ResponseEntity.ok().body(restaurante.get());
         }
+
+        return ResponseEntity.notFound().build();
     }
 
     //Normalmente
@@ -68,12 +69,12 @@ public class RestauranteController {
                                        @RequestBody Restaurante restaurante) {
         try {
 
-            Restaurante restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
+            Optional<Restaurante> restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
 
-            if (restauranteAtual != null) {
-                BeanUtils.copyProperties(restaurante, restauranteAtual, "id");
-                restauranteAtual = cadastratarRestauranteService.salvar(restauranteAtual);
-                return ResponseEntity.ok(restauranteAtual);
+            if (restauranteAtual.isPresent()) {
+                BeanUtils.copyProperties(restaurante, restauranteAtual.get(), "id");
+                Restaurante restauranteSalvo = cadastratarRestauranteService.salvar(restauranteAtual.get());
+                return ResponseEntity.ok(restauranteSalvo);
             }
             return ResponseEntity.notFound().build();
 
@@ -90,22 +91,22 @@ public class RestauranteController {
 
         //Map<String - propriedade do object | Object - o valor da propriedade>
 
-        Restaurante restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
+        Optional<Restaurante> restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
 
-        if (restauranteAtual == null) {
+        if (restauranteAtual.isEmpty()) {
 
             return ResponseEntity.notFound().build();
         }
 
         //Este método copia os valores do Map para o objecto restauranteAtual...
-        merge(campos, restauranteAtual);
+        merge(campos, restauranteAtual.get());
 
-        return atualizar(restauranteId, restauranteAtual); // Reutilizamos o método atualiar
+        return atualizar(restauranteId, restauranteAtual.get()); // Reutilizamos o método atualiar
 
     }
 
     private static void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino) {
-         // Para converter de Json para Java e vice-versa
+        // Para converter de Json para Java e vice-versa
         ObjectMapper objectMapper = new ObjectMapper();
         //Criamos uma instância de Restaurante usando os valores do Map...., ou seja, convertemos de json para java
         Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
@@ -127,9 +128,8 @@ public class RestauranteController {
     }
 
 
-
     @DeleteMapping(value = "/{restauranteId}")
-    public ResponseEntity<Restaurante> remover(@PathVariable Long restauranteId) {
+    public ResponseEntity<?> remover(@PathVariable Long restauranteId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
         try {
 
@@ -137,10 +137,10 @@ public class RestauranteController {
             return ResponseEntity.noContent().build();
 
         } catch (EntidadeNaoEncontradaException e) {
-            return ResponseEntity.notFound().build(); //A entidade não foi encontrada...
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); //A entidade não foi encontrada...
         } catch (EntidadeEmUsoException e) {
             // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 

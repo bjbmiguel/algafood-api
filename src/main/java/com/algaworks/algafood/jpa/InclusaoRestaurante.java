@@ -29,7 +29,7 @@ public class InclusaoRestaurante {
         restaurante.setTaxaFrete(new BigDecimal("10.50"));
 
 
-        restaurante = cozinhaRepository.salvar(restaurante);
+        restaurante = cozinhaRepository.save(restaurante);
 
         System.out.printf("%d - %s\n", restaurante.getId(), restaurante.getNome());
 

@@ -27,7 +27,7 @@ public class InclusaoCidade {
         Cidade cidade = new Cidade();
         cidade.setEstado(estado);
         cidade.setNome("Cacucao");
-        cidade =  cidadeRepository.adicionar(cidade);
+        cidade =  cidadeRepository.save(cidade);
 
 
         System.out.printf("%d - %s\n", cidade.getId(), cidade.getNome());

@@ -10,6 +10,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CadastrarEstadoService {
@@ -18,14 +19,14 @@ public class CadastrarEstadoService {
     EstadoRepository estadoRepository;
 
     public List<Estado> listar(){
-        return estadoRepository.todas();
+        return estadoRepository.findAll();
     }
 
-    public Estado buscar(Long estadoId) {
+    public Optional<Estado> buscar(Long estadoId) {
 
         try {
 
-            return estadoRepository.porId(estadoId);
+            return estadoRepository.findById(estadoId);
 
         } catch (EmptyResultDataAccessException e) {
             throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de Estado com o código %d", estadoId));
@@ -33,14 +34,14 @@ public class CadastrarEstadoService {
     }
 
     public Estado salvar(Estado estado) { //Vamos usar para salvar e actualizar
-        return estadoRepository.adicionar(estado);
+        return estadoRepository.save(estado);
     }
 
     public void excluir(Long estadoId) {
 
         try {
 
-            estadoRepository.remover(estadoId);
+            estadoRepository.deleteById(estadoId);
 
         }catch (EmptyResultDataAccessException e){
             //Not Found

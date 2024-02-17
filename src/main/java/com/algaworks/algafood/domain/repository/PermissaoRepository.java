@@ -1,13 +1,13 @@
 package com.algaworks.algafood.domain.repository;
 
+import com.algaworks.algafood.domain.model.FormaDePagamento;
 import com.algaworks.algafood.domain.model.Permissao;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface PermissaoRepository {
+@Repository
+public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
 
-    List<Permissao> todas();
-    Permissao porId(Long id);
-    Permissao adicionar(Permissao permissao);
-    void remover(Permissao permissao);
 }

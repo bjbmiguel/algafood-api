@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/cidades")
 @RestController
@@ -29,10 +30,10 @@ public class CidadeController {
     @GetMapping("/{cidadeId}")
     public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId) {
 
-        Cidade cidade = cadastrarCidadeService.buscar(cidadeId);
+        Optional<Cidade> cidade = cadastrarCidadeService.buscar(cidadeId);
 
-        if (cidade != null) {
-            return ResponseEntity.ok(cidade);
+        if (cidade.isPresent()) {
+            return ResponseEntity.ok(cidade.get());
         }
 
         return ResponseEntity.notFound().build();
@@ -59,12 +60,12 @@ public class CidadeController {
                                        @RequestBody Cidade cidade) {
         try {
 
-            Cidade cidadeAtual = cadastrarCidadeService.buscar(cidadeId);
+            Optional<Cidade> cidadeAtual = cadastrarCidadeService.buscar(cidadeId);
 
-            if (cidadeAtual != null) {
-                BeanUtils.copyProperties(cidade, cidadeAtual, "id");
-                cidadeAtual = cadastrarCidadeService.salvar(cidadeAtual);
-                return ResponseEntity.ok(cidadeAtual);
+            if (cidadeAtual.isPresent()) {
+                BeanUtils.copyProperties(cidade, cidadeAtual.get(), "id");
+               Cidade cidadeSalva = cadastrarCidadeService.salvar(cidadeAtual.get());
+                return ResponseEntity.ok(cidadeSalva);
             }
             return ResponseEntity.notFound().build();
 
@@ -76,7 +77,7 @@ public class CidadeController {
 
 
     @DeleteMapping(value = "/{cidadeId}")
-    public ResponseEntity<Estado> remover(@PathVariable Long cidadeId) {
+    public ResponseEntity<?> remover(@PathVariable Long cidadeId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
         try {
 
@@ -84,10 +85,10 @@ public class CidadeController {
             return ResponseEntity.noContent().build();
 
         }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.notFound().build(); //A entidade não foi encontrada...
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());//A entidade não foi encontrada...
         } catch (EntidadeEmUsoException e){
             // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 

@@ -23,7 +23,7 @@ public class InclusaoFormaDePagamento {
         formaDePagamento.setDescricao("Cartão de crédito e débito");
 
 
-        formaDePagamento = formaDePagamentoRepository.adicionar(formaDePagamento);
+        formaDePagamento = formaDePagamentoRepository.save(formaDePagamento);
 
         System.out.printf("%d - %s\n", formaDePagamento.getId(), formaDePagamento.getDescricao());
 
