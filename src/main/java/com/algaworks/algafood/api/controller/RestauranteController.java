@@ -5,7 +5,6 @@ import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
-import com.algaworks.algafood.domain.service.CadastroCozinhaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.algaworks.algafood.infrastructure.spec.RestauranteSpecs.*;
 
 @RequestMapping("/restaurantes")
 @RestController
@@ -46,7 +47,16 @@ public class RestauranteController {
     @GetMapping("/por-nome-e-taxa-frete")
     public List<Restaurante> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
 
-        return restauranteRepository.findDinamica(nome, taxaFreteInicial, taxaFreteFinal);
+        return restauranteRepository.findWithCriteria(nome, taxaFreteInicial, taxaFreteFinal);
+    }
+
+    @GetMapping("/com-frete-gratis")
+    public List<Restaurante> restaurantesComFreteGratis(String nome) {
+
+       // var comFreteGrais = new ResstauranteComFreteGratisSpec(); // Já não precisamos mais... agora estamos usar os métodos definidos na fábrica
+       // var comNomeSemelhante = new RestauranteComNomeSemelhanteSpec(nome);
+
+        return restauranteRepository.findAll(comFreteGratis().and(comNomeSemelhante(nome)));
     }
 
     @GetMapping("/por-nome")

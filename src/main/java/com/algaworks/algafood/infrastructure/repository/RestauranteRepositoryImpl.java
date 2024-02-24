@@ -1,12 +1,17 @@
 package com.algaworks.algafood.infrastructure.repository;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
@@ -55,12 +60,46 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
             jpql.append("and taxaFrete <= :taxaFinal ");
             parametros.put("taxaFinal", taxaFreteFinal);
         }
-        TypedQuery<Restaurante>  query = manager.createQuery(jpql.toString(), Restaurante.class);
+        TypedQuery<Restaurante> query = manager.createQuery(jpql.toString(), Restaurante.class);
 
-        parametros.forEach((chave, valor) -> query.setParameter(chave,valor));
+        parametros.forEach((chave, valor) -> query.setParameter(chave, valor));
 
         return query.getResultList();
 
+    }
+
+    @Override
+    public List<Restaurante> findWithCriteria(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
+
+        //Fabrica para construir elementos de uma consulta...
+        CriteriaBuilder builder = manager.getCriteriaBuilder(); // Usamos para obter uma inst de CriteriaBuilder
+
+        //Uma interface responsável por criar uma "CriteriaQuery" e  montar a composição/critérios de uma consulta sql (construtor de clausulas)
+        //CriteriaQuery<Restaurante> criteriaQuery = builder.createQuery(Restaurante.class);
+        var criteriaQuery = builder.createQuery(Restaurante.class);
+        //Root<Restaurante> root = criteriaQuery.from(Restaurante.class); // from Restaurante  | Adicionamos uma claúsula from.
+        var root = criteriaQuery.from(Restaurante.class); // from Restaurante  | Adicionamos uma claúsula from.
+
+        //Root = Restaurante
+        var predicates = new ArrayList<Predicate>();
+
+        //Filtro...
+        if (StringUtils.hasLength(nome)) { // Se o nome foi informado concatena...
+            predicates.add(builder.like(root.get("nome"), "%" + nome + "%"));
+        }
+
+        if (taxaFreteInicial != null) {
+            predicates.add(builder.greaterThanOrEqualTo(root.get("taxaFrete"), taxaFreteInicial));
+        }
+
+        if (taxaFreteFinal != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get("taxaFrete"), taxaFreteFinal));
+        }
+
+        criteriaQuery.where(predicates.toArray(new Predicate[0])); //Convertermos uma lista de predicates para Array...
+        var typedQuery = manager.createQuery(criteriaQuery); //optimizando... usando var
+        //TypedQuery<Restaurante> typedQuery = manager.createQuery(criteriaQuery);
+        return typedQuery.getResultList();
     }
 
 
