@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CozinhaRepository extends JpaRepository<Cozinha, Long> {
+public interface CozinhaRepository extends CustomJpaRepository<Cozinha, Long> {
     //O SDP irá fornecer em tempo de execução de alguns métodos como , save, delete, find, findALL
     List<Cozinha> findTodasByNomeContaining(String nome);
     Optional<Cozinha> findByNome(String nome);

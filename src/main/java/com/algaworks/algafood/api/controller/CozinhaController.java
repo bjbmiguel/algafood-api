@@ -1,6 +1,5 @@
 package com.algaworks.algafood.api.controller;
 
-import com.algaworks.algafood.api.model.CozinhasXmlWrapper;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cozinha;
@@ -8,12 +7,8 @@ import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.reactive.ClientHttpResponseDecorator;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,7 +43,9 @@ public class CozinhaController {
         //Este método nunca vai retornar um valor "null" sempre irá retornar um optional que pode ou ter uma cozinha...
         Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
 
-        if (cozinha.isEmpty()) {
+
+
+        if (cozinha.isPresent()) {
 
             return ResponseEntity.ok().body(cozinha.get()); // O método body representa o corpo da resposta.
         }
@@ -56,6 +53,12 @@ public class CozinhaController {
         //return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         return ResponseEntity.notFound().build(); //Optimizando a resposta...
 
+    }
+
+    @GetMapping("/primeiro")
+    public Optional<Cozinha> buscarPrimeiro() {
+
+        return cozinhaRepository.buscarPrimeiro();
     }
 
     @GetMapping(value = "/por-nome")

@@ -53,10 +53,7 @@ public class RestauranteController {
     @GetMapping("/com-frete-gratis")
     public List<Restaurante> restaurantesComFreteGratis(String nome) {
 
-       // var comFreteGrais = new ResstauranteComFreteGratisSpec(); // Já não precisamos mais... agora estamos usar os métodos definidos na fábrica
-       // var comNomeSemelhante = new RestauranteComNomeSemelhanteSpec(nome);
-
-        return restauranteRepository.findAll(comFreteGratis().and(comNomeSemelhante(nome)));
+        return restauranteRepository.findComFreteGratis(nome);
     }
 
     @GetMapping("/por-nome")
@@ -69,6 +66,11 @@ public class RestauranteController {
     public Optional<Restaurante> findFirstRestauranteByName(String nome) {
 
         return restauranteRepository.readFirstRestauranteByNomeContaining(nome);
+    }
+
+    @GetMapping("/primeiro")
+    public Optional<Restaurante> buscarPrimeiro() {
+        return restauranteRepository.buscarPrimeiro();
     }
 
     @GetMapping("/top2-por-nome")
