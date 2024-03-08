@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.algaworks.algafood.infrastructure.spec.RestauranteSpecs.*;
 
 @RequestMapping("/restaurantes")
 @RestController
@@ -114,11 +113,11 @@ public class RestauranteController {
     public ResponseEntity<?> atualizar(@PathVariable Long restauranteId,
                                        @RequestBody Restaurante restaurante) {
         try {
-
             Optional<Restaurante> restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
 
             if (restauranteAtual.isPresent()) {
-                BeanUtils.copyProperties(restaurante, restauranteAtual.get(), "id");
+                BeanUtils.copyProperties(restaurante, restauranteAtual.get(),
+                        "id", "fomrasPagamento", "endereco", "dataCadastro", "produtos");
                 Restaurante restauranteSalvo = cadastratarRestauranteService.salvar(restauranteAtual.get());
                 return ResponseEntity.ok(restauranteSalvo);
             }

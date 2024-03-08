@@ -6,10 +6,14 @@ import java.util.Optional;
 
 import com.algaworks.algafood.domain.model.Restaurante;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface RestauranteRepository  extends CustomJpaRepository<Restaurante, Long> , RestauranteRepositoryQueries,
         JpaSpecificationExecutor<Restaurante> {
+
+    @Query("from Restaurante r inner join r.cozinha lefth join fetch r.formasPagamento")
+    List<Restaurante> findAll();
 
     List<Restaurante> findByTaxaFreteBetween(BigDecimal taxaInicial, BigDecimal taxaFinal);
     List<Restaurante> findByNomeContainingAndCozinhaId(String nome, Long cozinhaId);

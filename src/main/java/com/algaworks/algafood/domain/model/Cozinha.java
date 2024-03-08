@@ -8,8 +8,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.loader.collection.OneToManyJoinWalker;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity // A classe representa uma entidade
@@ -26,6 +29,11 @@ public class Cozinha {
     //@JsonIgnore // Vai ignorar este campo na  representação do recurso.
     @Column(nullable = true)
     private String nome;
+
+
+    @JsonIgnore // vai ignorar a serialização de restaurante quando for serializar a cozinha.
+    @OneToMany(mappedBy = "cozinha")
+    List<Restaurante> restaurantes  = new ArrayList<>();
 
 
 }
