@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,6 @@ public class CozinhaController {
         Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
 
 
-
         if (cozinha.isPresent()) {
 
             return ResponseEntity.ok().body(cozinha.get()); // O método body representa o corpo da resposta.
@@ -65,14 +65,14 @@ public class CozinhaController {
     //--> nome --> nome - Retorna uma lista
     public List<Cozinha> buscarPorNome(String nome) { //o nome virá por "query String"
 
-      return  cozinhaRepository.findTodasByNomeContaining(nome);
+        return cozinhaRepository.findTodasByNomeContaining(nome);
     }
 
     @GetMapping(value = "/unico-por-nome")
     //--> nome --> nome Retorna uma única instância
     public Optional<Cozinha> buscarPorNomeUnico(String nome) { //o nome virá por "query String"
 
-        return  cozinhaRepository.findByNome(nome);
+        return cozinhaRepository.findByNome(nome);
     }
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
@@ -93,7 +93,7 @@ public class CozinhaController {
             //BeanUtils esta classe é do Spring...
             // O id será ignorado...
             BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");
-           Cozinha cozinhaSalva = cadastroCozinhaService.salvar(cozinhaAtual.get());
+            Cozinha cozinhaSalva = cadastroCozinhaService.salvar(cozinhaAtual.get());
             return ResponseEntity.ok(cozinhaSalva); //O método body representa o corpo da resposta.
         }
         return ResponseEntity.notFound().build(); //Optimizando a resposta...
@@ -119,10 +119,11 @@ public class CozinhaController {
 */
     @DeleteMapping(value = "/{cozinhaId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void  remover(@PathVariable Long cozinhaId) {
-            cadastroCozinhaService.excluir(cozinhaId);
-    }
+    public void remover(@PathVariable Long cozinhaId) {
 
+            cadastroCozinhaService.excluir(cozinhaId);
+
+    }
 
 
 }

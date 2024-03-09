@@ -8,7 +8,9 @@ import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +48,7 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
     public void excluir(Long cozinhaId) {
         try {
             if (!cozinhaRepository.existsById(cozinhaId)) {
-                throw new EntidadeNaoEncontradaException(
+                throw new EntidadeNaoEncontradaException(HttpStatus.NOT_FOUND,
                         String.format("Não existe um cadastro de cozinha com código %d", cozinhaId));
             }
             cozinhaRepository.deleteById(cozinhaId);
@@ -56,7 +58,6 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
                     String.format("Cozinha de código %d não pode ser removida, pois está em uso", cozinhaId));
         }
     }
-
 
 
     public Optional<Cozinha> buscar(Long cozinhaId) {
