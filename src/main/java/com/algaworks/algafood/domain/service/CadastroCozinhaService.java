@@ -16,8 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CadastroCozinhaService { // Esta classe representa as logícas de negócio da entidade cozinha...
+public class CadastroCozinhaService {
 
+    public static final String MSG_COZINHA_NAO_ENCONTRADA = "Não existe um cadastro de cozinha com o código %d";
+    public static final String MSG_COZINHA_EM_USO = "Cozinha de código %d não pode ser removida, pois está em uso";
     @Autowired
     private CozinhaRepository cozinhaRepository;
 
@@ -38,24 +40,24 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
 
         } catch (EmptyResultDataAccessException e) {
             //Not Found
-            throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de cozinha com o código %d", cozinhaId));
+            throw new EntidadeNaoEncontradaException(String.format(MSG_COZINHA_NAO_ENCONTRADA, cozinhaId));
         } catch (DataIntegrityViolationException e) {
             // Uma cozinha está em uso por um restaurante....
-            throw new EntidadeEmUsoException(String.format("Cozinha de código %d não pode ser removida, pós está em uso", cozinhaId));
+            throw new EntidadeEmUsoException(String.format(MSG_COZINHA_EM_USO, cozinhaId));
         }
     }
 
     public void excluir(Long cozinhaId) {
         try {
             if (!cozinhaRepository.existsById(cozinhaId)) {
-                throw new EntidadeNaoEncontradaException(HttpStatus.NOT_FOUND,
-                        String.format("Não existe um cadastro de cozinha com código %d", cozinhaId));
+                throw new EntidadeNaoEncontradaException(
+                        String.format(MSG_COZINHA_NAO_ENCONTRADA, cozinhaId));
             }
             cozinhaRepository.deleteById(cozinhaId);
 
         } catch (DataIntegrityViolationException e) {
             throw new EntidadeEmUsoException(
-                    String.format("Cozinha de código %d não pode ser removida, pois está em uso", cozinhaId));
+                    String.format(MSG_COZINHA_EM_USO, cozinhaId));
         }
     }
 
@@ -66,8 +68,15 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
             return cozinhaRepository.findById(cozinhaId);
 
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de Cozinha com o código %d", cozinhaId));
+            throw new EntidadeNaoEncontradaException(String.format(MSG_COZINHA_NAO_ENCONTRADA, cozinhaId));
         }
+    }
+
+    public Cozinha hasOrNot(Long cozinhaId){
+
+        return cozinhaRepository.findById(cozinhaId).orElseThrow(
+                () -> new EntidadeNaoEncontradaException(
+                        String.format(MSG_COZINHA_NAO_ENCONTRADA, cozinhaId)));
     }
 
 

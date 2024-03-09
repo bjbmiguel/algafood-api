@@ -1,17 +1,14 @@
 package com.algaworks.algafood.domain.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class EntidadeNaoEncontradaException extends ResponseStatusException {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class EntidadeNaoEncontradaException extends RuntimeException {
 
     private static final long serilVersionUID = 1L;
 
-    public EntidadeNaoEncontradaException(String msn){
-        this(HttpStatus.NOT_FOUND, msn);
+    public EntidadeNaoEncontradaException(String message) {
+        super(message);
     }
-    public EntidadeNaoEncontradaException(HttpStatus status, String mensagem) {
-        super(status, mensagem);
-    }
-
 }

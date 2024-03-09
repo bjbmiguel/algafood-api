@@ -38,21 +38,9 @@ public class CozinhaController {
 
 
     @GetMapping(value = "/{cozinhaId}")
-    // Usmos a classe ResponseEntity para costumizar respostas HTTP...
-    public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId) {  // Será feito um bind de forma automática
+    public Cozinha buscar(@PathVariable Long cozinhaId) {  // Será feito um bind de forma automática
 
-        //Este método nunca vai retornar um valor "null" sempre irá retornar um optional que pode ou ter uma cozinha...
-        Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
-
-
-        if (cozinha.isPresent()) {
-
-            return ResponseEntity.ok().body(cozinha.get()); // O método body representa o corpo da resposta.
-        }
-
-        //return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        return ResponseEntity.notFound().build(); //Optimizando a resposta...
-
+        return cadastroCozinhaService.hasOrNot(cozinhaId);
     }
 
     @GetMapping("/primeiro")
@@ -82,48 +70,23 @@ public class CozinhaController {
     }
 
     @PutMapping(value = "/{cozinhaId}")
-    public ResponseEntity<Cozinha> actualizar(@RequestBody Cozinha cozinha, @PathVariable Long cozinhaId) {
-        // @RequestBody vai fazer o bind de forma automática para o objecto cozinha
-        //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
+    public Cozinha actualizar(@RequestBody Cozinha cozinha, @PathVariable Long cozinhaId) {
 
-        //Pegando a cozinha existente...
-        Optional<Cozinha> cozinhaAtual = cozinhaRepository.findById(cozinhaId);
-
-        if (cozinhaAtual.isPresent()) {
-            //BeanUtils esta classe é do Spring...
-            // O id será ignorado...
-            BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");
-            Cozinha cozinhaSalva = cadastroCozinhaService.salvar(cozinhaAtual.get());
-            return ResponseEntity.ok(cozinhaSalva); //O método body representa o corpo da resposta.
-        }
-        return ResponseEntity.notFound().build(); //Optimizando a resposta...
-    }
-
-    /*
-    @DeleteMapping(value = "/{cozinhaId}")
-
-    public ResponseEntity<?> remover(@PathVariable Long cozinhaId) {
-        //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
-        try {
-
-            cadastroCozinhaService.excluir(cozinhaId);
-            return ResponseEntity.noContent().build();
-
-        }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); //A entidade não foi encontrada...
-        } catch (EntidadeEmUsoException e){
-            // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
-    }
-*/
-    @DeleteMapping(value = "/{cozinhaId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void remover(@PathVariable Long cozinhaId) {
-
-            cadastroCozinhaService.excluir(cozinhaId);
+        Cozinha cozinhaAtual = cadastroCozinhaService.hasOrNot(cozinhaId);
+        BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
+        return  cadastroCozinhaService.salvar(cozinhaAtual);
 
     }
+
+
+
+@DeleteMapping(value = "/{cozinhaId}")
+@ResponseStatus(HttpStatus.NO_CONTENT)
+public void remover(@PathVariable Long cozinhaId) {
+
+    cadastroCozinhaService.excluir(cozinhaId);
+
+}
 
 
 }
