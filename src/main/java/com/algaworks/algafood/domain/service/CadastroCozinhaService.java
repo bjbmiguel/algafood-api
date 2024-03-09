@@ -57,6 +57,8 @@ public class CadastroCozinhaService { // Esta classe representa as logícas de n
         }
     }
 
+
+
     public Optional<Cozinha> buscar(Long cozinhaId) {
 
         try {

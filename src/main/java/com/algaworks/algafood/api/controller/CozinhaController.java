@@ -99,7 +99,9 @@ public class CozinhaController {
         return ResponseEntity.notFound().build(); //Optimizando a resposta...
     }
 
+    /*
     @DeleteMapping(value = "/{cozinhaId}")
+
     public ResponseEntity<?> remover(@PathVariable Long cozinhaId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
         try {
@@ -114,6 +116,14 @@ public class CozinhaController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
+*/
+    @DeleteMapping(value = "/{cozinhaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void  remover(@PathVariable Long cozinhaId) {
+            cadastroCozinhaService.excluir(cozinhaId);
+    }
+
+
 
 }
 
