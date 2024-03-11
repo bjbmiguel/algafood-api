@@ -1,10 +1,8 @@
 package com.algaworks.algafood.api.controller;
 
-import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
+
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cidade;
-import com.algaworks.algafood.domain.model.Estado;
-import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.service.CadastrarCidadeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +25,12 @@ public class CidadeController {
     public List<Cidade> listar() {
         return cadastrarCidadeService.listar();
     }
+
     @GetMapping("/{cidadeId}")
-    public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId) {
+    public Cidade buscar(@PathVariable Long cidadeId) {
 
-        Optional<Cidade> cidade = cadastrarCidadeService.buscar(cidadeId);
+     return cadastrarCidadeService.hasOrNot(cidadeId);
 
-        if (cidade.isPresent()) {
-            return ResponseEntity.ok(cidade.get());
-        }
-
-        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
@@ -56,40 +50,21 @@ public class CidadeController {
     }
 
     @PutMapping("/{cidadeId}")
-    public ResponseEntity<?> atualizar(@PathVariable Long cidadeId,
-                                       @RequestBody Cidade cidade) {
-        try {
+    public Cidade atualizar(@PathVariable Long cidadeId,
+                            @RequestBody Cidade cidade) {
 
-            Optional<Cidade> cidadeAtual = cadastrarCidadeService.buscar(cidadeId);
+            Cidade cidadeAtual = cadastrarCidadeService.hasOrNot(cidadeId);
+            BeanUtils.copyProperties(cidade, cidadeAtual, "id");
+            return cadastrarCidadeService.salvar(cidadeAtual);
 
-            if (cidadeAtual.isPresent()) {
-                BeanUtils.copyProperties(cidade, cidadeAtual.get(), "id");
-               Cidade cidadeSalva = cadastrarCidadeService.salvar(cidadeAtual.get());
-                return ResponseEntity.ok(cidadeSalva);
-            }
-            return ResponseEntity.notFound().build();
-
-        } catch (EntidadeNaoEncontradaException e) {
-            return ResponseEntity.badRequest()
-                    .body(e.getMessage());
         }
-    }
 
-
-    @DeleteMapping(value = "/{cidadeId}")
-    public ResponseEntity<?> remover(@PathVariable Long cidadeId) {
-        //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
-        try {
+        @DeleteMapping(value = "/{cidadeId}")
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void remover (@PathVariable Long cidadeId){
 
             cadastrarCidadeService.excluir(cidadeId);
-            return ResponseEntity.noContent().build();
 
-        }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());//A entidade não foi encontrada...
-        } catch (EntidadeEmUsoException e){
-            // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
-    }
 
-}
+    }

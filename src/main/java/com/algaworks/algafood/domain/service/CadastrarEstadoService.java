@@ -15,6 +15,8 @@ import java.util.Optional;
 @Service
 public class CadastrarEstadoService {
 
+    public static final String MSG_ESTADO_NAO_ENCONTRADO = "Não existe um cadastro de Estado com o código %d";
+    public static final String MSG_ESATDO_EM_USO = "Estado de código %d não pode ser removido, pós está em uso";
     @Autowired //Injetamos o componente  EstadoRepository...
     EstadoRepository estadoRepository;
 
@@ -29,7 +31,7 @@ public class CadastrarEstadoService {
             return estadoRepository.findById(estadoId);
 
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de Estado com o código %d", estadoId));
+            throw new EntidadeNaoEncontradaException(String.format(MSG_ESTADO_NAO_ENCONTRADO, estadoId));
         }
     }
 
@@ -45,10 +47,19 @@ public class CadastrarEstadoService {
 
         }catch (EmptyResultDataAccessException e){
             //Not Found
-            throw  new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de Estado com o código %d", estadoId));
+            throw  new EntidadeNaoEncontradaException(String.format(MSG_ESTADO_NAO_ENCONTRADO, estadoId));
         } catch (DataIntegrityViolationException e) {
             // Uma cozinha está em uso por um restaurante....
-            throw new EntidadeEmUsoException(String.format("Cozinha de código %d não pode ser Estado, pós está em uso", estadoId));
+            throw new EntidadeEmUsoException(String.format(MSG_ESATDO_EM_USO, estadoId));
         }
+    }
+
+
+    //Retorna um objecto do tipo cozinha na resposta, caso contrário uma resposta com código 404 será lançada...
+    public Estado hasOrNot(Long estadoId){
+
+        return estadoRepository.findById(estadoId).orElseThrow(
+                () -> new EntidadeNaoEncontradaException(
+                        String.format(MSG_ESTADO_NAO_ENCONTRADO, estadoId)));
     }
 }

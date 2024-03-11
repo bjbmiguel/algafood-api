@@ -2,6 +2,7 @@ package com.algaworks.algafood.api.controller;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
+import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Estado;
 import com.algaworks.algafood.domain.service.CadastrarEstadoService;
 import org.springframework.beans.BeanUtils;
@@ -14,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/estados")
-@RestController // Definimos a classe Estado como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
+@RestController
+// Definimos a classe Estado como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
 public class EstadoController {
 
     @Autowired // Injetamos a dependência
@@ -26,16 +28,9 @@ public class EstadoController {
     }
 
     @GetMapping(value = "/{estadoId}")
-    public ResponseEntity<Estado> buscar(@PathVariable Long estadoId) {
+    public Estado buscar(@PathVariable Long estadoId) {
 
-        Optional<Estado> estado = cadastrarEstadoService.buscar(estadoId);
-
-       if (estado.isPresent()) {
-
-            return ResponseEntity.ok().body(estado.get()); // O método body representa o corpo da resposta.
-        }
-
-       return ResponseEntity.notFound().build(); //Optimizando a resposta... 404
+        return cadastrarEstadoService.hasOrNot(estadoId);
 
     }
 
@@ -47,39 +42,24 @@ public class EstadoController {
 
 
     @PutMapping(value = "/{estadoId}")
-    public ResponseEntity<Estado> actualizar(@RequestBody Estado estado, @PathVariable Long estadoId) {
+    public Estado actualizar(@RequestBody Estado estado, @PathVariable Long estadoId) {
 
-        // @RequestBody vai fazer o bind de forma automática para o objecto cozinha
-        //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
+        //Busca estado... ou lança uma exceção que esta mapeado com NOT_FOUND
+        Estado estadoAtual = cadastrarEstadoService.hasOrNot(estadoId);
 
-        //Pegando a cozinha existente...
-        Optional<Estado> estadoAtual = cadastrarEstadoService.buscar(estadoId);
+        //Copia as propriedade de estado --> eatddoAtual com exceção ao id
+        BeanUtils.copyProperties(estado, estadoAtual, "id");
 
-        if (estadoAtual.isPresent()) {
-            //BeanUtils esta classe é do Spring...
-            // O id será ignorado...
-            BeanUtils.copyProperties(estado, estadoAtual.get(), "id");
-           Estado estadoSalvo = cadastrarEstadoService.salvar(estadoAtual.get());
-            return ResponseEntity.ok(estadoSalvo); //O método body representa o corpo da resposta.
-        }
-
-        return ResponseEntity.notFound().build(); //Optimizando a resposta...
+        //Salvar, e o seu retorno vai para o corpo da resposta da requisição
+        return cadastrarEstadoService.salvar(estadoAtual);
     }
 
     @DeleteMapping(value = "/{estadoId}")
-    public ResponseEntity<?> remover(@PathVariable Long estadoId) {
-        //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
-        try {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remover(@PathVariable Long estadoId) {
 
-            cadastrarEstadoService.excluir(estadoId);
-            return ResponseEntity.noContent().build();
+        cadastrarEstadoService.excluir(estadoId);
 
-        }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); //A entidade não foi encontrada...
-        } catch (EntidadeEmUsoException e){
-            // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
     }
 
 }
