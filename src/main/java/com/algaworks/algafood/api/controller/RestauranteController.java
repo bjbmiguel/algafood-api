@@ -80,16 +80,10 @@ public class RestauranteController {
 
 
     @GetMapping(value = "/{restauranteId}")
-    public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {
+    public Restaurante buscar(@PathVariable Long restauranteId) {
 
+        return  cadastratarRestauranteService.hasOrNot(restauranteId);
 
-        Optional<Restaurante> restaurante = cadastratarRestauranteService.buscar(restauranteId);
-
-        if (restaurante.isPresent()) {
-            return ResponseEntity.ok().body(restaurante.get());
-        }
-
-        return ResponseEntity.notFound().build();
     }
 
     //Normalmente
@@ -110,43 +104,29 @@ public class RestauranteController {
 
 
     @PutMapping("/{restauranteId}")
-    public ResponseEntity<?> atualizar(@PathVariable Long restauranteId,
-                                       @RequestBody Restaurante restaurante) {
-        try {
-            Optional<Restaurante> restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
+    public Restaurante atualizar(@PathVariable Long restauranteId,
+                                 @RequestBody Restaurante restaurante) {
 
-            if (restauranteAtual.isPresent()) {
-                BeanUtils.copyProperties(restaurante, restauranteAtual.get(),
-                        "id", "fomrasPagamento", "endereco", "dataCadastro", "produtos");
-                Restaurante restauranteSalvo = cadastratarRestauranteService.salvar(restauranteAtual.get());
-                return ResponseEntity.ok(restauranteSalvo);
-            }
-            return ResponseEntity.notFound().build();
+        Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
 
-        } catch (EntidadeNaoEncontradaException e) {
-            return ResponseEntity.badRequest()
-                    .body(e.getMessage());
-        }
+        BeanUtils.copyProperties(restaurante, restauranteAtual,
+                "id", "fomrasPagamento", "endereco", "dataCadastro", "produtos");
+        return cadastratarRestauranteService.salvar(restauranteAtual);
+
     }
 
     // A idea é atualizar somente as propriedades que foram especificadas no corpo da requisição...
     @PatchMapping("/{restauranteId}") // Vai atender requis HTTP do tipi PATCH...
-    public ResponseEntity<?> atualizarParcial(@PathVariable Long restauranteId,
+    public Restaurante atualizarParcial(@PathVariable Long restauranteId,
                                               @RequestBody Map<String, Object> campos) {
 
         //Map<String - propriedade do object | Object - o valor da propriedade>
-
-        Optional<Restaurante> restauranteAtual = cadastratarRestauranteService.buscar(restauranteId);
-
-        if (restauranteAtual.isEmpty()) {
-
-            return ResponseEntity.notFound().build();
-        }
+        Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
 
         //Este método copia os valores do Map para o objecto restauranteAtual...
-        merge(campos, restauranteAtual.get());
+        merge(campos, restauranteAtual);
 
-        return atualizar(restauranteId, restauranteAtual.get()); // Reutilizamos o método atualiar
+        return atualizar(restauranteId, restauranteAtual); // Reutilizamos o método atualiar
 
     }
 
@@ -174,19 +154,11 @@ public class RestauranteController {
 
 
     @DeleteMapping(value = "/{restauranteId}")
-    public ResponseEntity<?> remover(@PathVariable Long restauranteId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remover(@PathVariable Long restauranteId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
-        try {
 
-            cadastratarRestauranteService.excluir(restauranteId);
-            return ResponseEntity.noContent().build();
-
-        } catch (EntidadeNaoEncontradaException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); //A entidade não foi encontrada...
-        } catch (EntidadeEmUsoException e) {
-            // Se a chave  estrangeira recurso numa outra tabela então essa exceção será capturada aqui como "conflito"
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        cadastratarRestauranteService.excluir(restauranteId);
     }
 
 
