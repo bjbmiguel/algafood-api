@@ -1,5 +1,6 @@
 package com.algaworks.algafood.domain.service;
 
+import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cidade;
@@ -17,7 +18,6 @@ import java.util.Optional;
 @Service
 public class CadastrarCidadeService {
 
-    public static final String MSG_CIDADE_NAO_ENCONTRADO = "Não existe um cadastro de Cidade com o código %d";
     public static final String MSG_CIDADE_EM_USO = "Cidade de código %d não pode ser removido, pós está em uso";
 
     @Autowired
@@ -25,6 +25,9 @@ public class CadastrarCidadeService {
 
     @Autowired
     private EstadoRepository estadoRepository;
+
+    @Autowired
+    private CadastrarEstadoService cadastrarEstadoService;
 
     public List<Cidade> listar(){
         return cidadeRepository.findAll();
@@ -37,20 +40,15 @@ public class CadastrarCidadeService {
             return cidadeRepository.findById(estadoId);
 
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(String.format(MSG_CIDADE_NAO_ENCONTRADO, estadoId));
+            throw new CidadeNaoEncontradaException(estadoId);
         }
     }
     public Cidade salvar(Cidade cidade) {
 
         Long estadoId = cidade.getEstado().getId();
-        Optional<Estado> estado = estadoRepository.findById(estadoId);
+        Estado estado = cadastrarEstadoService.hasOrNot(estadoId);
 
-        if (estado.isEmpty()) {
-            throw new EntidadeNaoEncontradaException(
-                    String.format(MSG_CIDADE_NAO_ENCONTRADO, estadoId));
-        }
-
-        cidade.setEstado(estado.get());
+        cidade.setEstado(estado);
         return cidadeRepository.save(cidade);
     }
 
@@ -60,8 +58,7 @@ public class CadastrarCidadeService {
             cidadeRepository.deleteById(cidadeId);
 
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(
-                    String.format(MSG_CIDADE_NAO_ENCONTRADO, cidadeId));
+            throw new CidadeNaoEncontradaException(cidadeId);
 
         } catch (DataIntegrityViolationException e) {
             throw new EntidadeEmUsoException(
@@ -72,7 +69,6 @@ public class CadastrarCidadeService {
     public Cidade hasOrNot(Long cidadeId){
 
         return cidadeRepository.findById(cidadeId).orElseThrow(
-                () -> new EntidadeNaoEncontradaException(
-                        String.format(MSG_CIDADE_NAO_ENCONTRADO, cidadeId)));
+                () -> new CidadeNaoEncontradaException(cidadeId));
     }
 }

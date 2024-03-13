@@ -2,6 +2,7 @@ package com.algaworks.algafood.api.controller;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
+import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
@@ -82,7 +83,7 @@ public class RestauranteController {
     @GetMapping(value = "/{restauranteId}")
     public Restaurante buscar(@PathVariable Long restauranteId) {
 
-        return  cadastratarRestauranteService.hasOrNot(restauranteId);
+        return cadastratarRestauranteService.hasOrNot(restauranteId);
 
     }
 
@@ -90,15 +91,15 @@ public class RestauranteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     // Usamos o ? para aceitar qualquer tipo de parâmetro...
-    public ResponseEntity<?> adicionar(@RequestBody Restaurante restaurante) {
+    public Restaurante adicionar(@RequestBody Restaurante restaurante) {
 
         try {
-            restaurante = cadastratarRestauranteService.salvar(restaurante);
-            return ResponseEntity.status(HttpStatus.CREATED).body(restaurante);
+
+            return cadastratarRestauranteService.salvar(restaurante);
 
         } catch (EntidadeNaoEncontradaException e) {
-
-            return ResponseEntity.badRequest().body(e.getMessage());
+            //Tratamos a exceção do tipo EntidadeNaoEncontradaException e relancamos como uma NegocioException
+            throw new NegocioException(e.getMessage());
         }
     }
 
@@ -118,7 +119,7 @@ public class RestauranteController {
     // A idea é atualizar somente as propriedades que foram especificadas no corpo da requisição...
     @PatchMapping("/{restauranteId}") // Vai atender requis HTTP do tipi PATCH...
     public Restaurante atualizarParcial(@PathVariable Long restauranteId,
-                                              @RequestBody Map<String, Object> campos) {
+                                        @RequestBody Map<String, Object> campos) {
 
         //Map<String - propriedade do object | Object - o valor da propriedade>
         Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
