@@ -7,13 +7,18 @@ import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.List;
@@ -83,7 +88,7 @@ public class RestauranteController {
     @GetMapping(value = "/{restauranteId}")
     public Restaurante buscar(@PathVariable Long restauranteId) {
 
-        return cadastratarRestauranteService.hasOrNot(restauranteId);
+              return cadastratarRestauranteService.hasOrNot(restauranteId);
 
     }
 
@@ -119,38 +124,46 @@ public class RestauranteController {
     // A idea é atualizar somente as propriedades que foram especificadas no corpo da requisição...
     @PatchMapping("/{restauranteId}") // Vai atender requis HTTP do tipi PATCH...
     public Restaurante atualizarParcial(@PathVariable Long restauranteId,
-                                        @RequestBody Map<String, Object> campos) {
+                                        @RequestBody Map<String, Object> campos, HttpServletRequest request) {
 
         //Map<String - propriedade do object | Object - o valor da propriedade>
         Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
 
         //Este método copia os valores do Map para o objecto restauranteAtual...
-        merge(campos, restauranteAtual);
+        merge(campos, restauranteAtual, request);
 
         return atualizar(restauranteId, restauranteAtual); // Reutilizamos o método atualiar
 
     }
 
-    private static void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino) {
-        // Para converter de Json para Java e vice-versa
-        ObjectMapper objectMapper = new ObjectMapper();
-        //Criamos uma instância de Restaurante usando os valores do Map...., ou seja, convertemos de json para java
-        Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
+    private static void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino,
+                              HttpServletRequest request) {
+        //Criamos uma instância de ServletServerHttpRequest para passar no construtor de HttpMessageNotReadableException
+        ServletServerHttpRequest serverHttpRequest = new ServletServerHttpRequest(request);
 
-        dadosOrigem.forEach((nomePropriedade, valorPropriedade) -> {
-            // Vai pegar da classe Restaurante uma propriedade de acordo com o valor de "nomePropriedade"
-            Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
-            field.setAccessible(true); //tornando a variável acessível...
+        try {
+            // Para converter de Json para Java e vice-versa
+            ObjectMapper objectMapper = new ObjectMapper();
+            //Criamos uma instância de Restaurante usando os valores do Map...., ou seja, convertemos de json para java
+            Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
 
-            //Pegamos o valor deste "field" no objecto restauranteOrigem
-            Object novoValor = ReflectionUtils.getField(field, restauranteOrigem);
+            dadosOrigem.forEach((nomePropriedade, valorPropriedade) -> {
+                // Vai pegar da classe Restaurante uma propriedade de acordo com o valor de "nomePropriedade"
+                Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
+                field.setAccessible(true); //tornando a variável acessível...
 
-            System.out.println(nomePropriedade + " = " + valorPropriedade);
+                //Pegamos o valor deste "field" no objecto restauranteOrigem
+                Object novoValor = ReflectionUtils.getField(field, restauranteOrigem);
 
-            //Atribuimos no campo "field" do objecto "restauranteDestino" o valor que consta em "valorPropriedade"
-            ReflectionUtils.setField(field, restauranteDestino, novoValor);
+                //Atribuimos no campo "field" do objecto "restauranteDestino" o valor que consta em "valorPropriedade"
+                ReflectionUtils.setField(field, restauranteDestino, novoValor);
+            });
 
-        });
+        } catch (IllegalArgumentException e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            throw new HttpMessageNotReadableException(e.getMessage(), rootCause, serverHttpRequest);
+        }
+
     }
 
 
