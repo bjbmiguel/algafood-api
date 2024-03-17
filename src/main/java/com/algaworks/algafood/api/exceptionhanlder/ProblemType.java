@@ -2,20 +2,16 @@ package com.algaworks.algafood.api.exceptionhanlder;
 
 import lombok.Getter;
 
-import java.security.PrivateKey;
-
 @Getter
 public enum ProblemType {
 
-    MENSAGEM_INCOMPREENSIVEL("/mensagem-incompreensivel", "Mensagem incompreensível"),
-    RECURSO_NAO_ENCONTRADA("/recurso-nao-encontrada", "Entidade não encontrada"),
+    MENSAGEM_INCOMPREENSIVEL("/mensagem-incompreensivel", "Mensagem incompreensível."),
+    RECURSO_NAO_ENCONTRADO("/recurso-nao-encontrada", "Entidade não encontrada."),
     PROPRIEDADE_NAO_ENCONTRADA("/propriedade-nao-encontrada", "Propriedade não encontrada"),
     PARAMETRO_INVALIDO("/parametro-invalido", "Parâmetro inválido"),
-
+    ERRO_DE_SISTEMA("/erro-de-sistema", "Erro de Sistema"),
     ENTIDADE_EM_USO("/entidade-em-uso", "Entidade em uso"),
     ERRO_NEGOCIO("/erro-negocio", "Violação de regra de negócio");
-    //ENTIDADE_EM_USO("/entidade-em-uso", "Entidade em uso"),
-  //  ERRO_NEGOCIO ("/requisicao-errada", "Requisição errada");
 
     private String title;
     private String uri;

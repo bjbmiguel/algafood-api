@@ -88,7 +88,8 @@ public class RestauranteController {
     @GetMapping(value = "/{restauranteId}")
     public Restaurante buscar(@PathVariable Long restauranteId) {
 
-              return cadastratarRestauranteService.hasOrNot(restauranteId);
+
+        return cadastratarRestauranteService.hasOrNot(restauranteId);
 
     }
 
