@@ -1,5 +1,6 @@
 package com.algaworks.algafood.domain.model;
 
+import com.algaworks.algafood.Groups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,7 +12,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,14 +32,17 @@ public class Restaurante {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Usando o "GenerationType.IDENTITY" quem vai a gerar a PK é o mysql...
     private  Long id;
 
-    @NotNull
+    @NotBlank(groups = Groups.CadastroRestaurante.class) // Esta constraint está agrupa num grupo CadastroRestaurante
     private String nome;
 
+    @PositiveOrZero(groups = Groups.CadastroRestaurante.class)
     @Column(name = "taxa_frete", nullable = false)  //nullable --> not null
     private BigDecimal taxaFrete;
 
     //@JsonIgnore  //Igonorando a serialização de Cozinha na repr. do recurso.
     //@JsonIgnoreProperties("hibernateLazyInitializer") //ignorando a propriedade hibernateLazyInitializer de Cozinha
+    @NotNull(groups = Groups.CadastroRestaurante.class)
+    @Valid // será feito uma validação em cascata, ou seja, vai validar as proprieddades do objecto Cozinha
     @ManyToOne //(fetch = FetchType.LAZY) // ... vários restaurantes podem estar associado a uma cozinha,
     @JoinColumn(name = "cozinha_id", nullable = false) // Usamos para especificar o nome da chave estrangeira... fk
     private Cozinha cozinha;

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder //usamos para construir objectos de forma mais fluente...
 @Getter
@@ -18,5 +19,16 @@ public class Problem {
 
     private String userMessage;
     private LocalDateTime timesTamp;
+    private List<Field> fields;
+
+
+    @Getter
+    @Builder
+    public  static class Field {
+
+        private String name;
+        private String userMessage;
+
+    }
 
 }

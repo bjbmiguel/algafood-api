@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +66,7 @@ public class CozinhaController {
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
     @ResponseStatus(HttpStatus.CREATED) //Costumizamos o status da resposta... para 201
-    public Cozinha adicionar(@RequestBody Cozinha cozinha) { //Anotamos o parâmetro "cozinha"
+    public Cozinha adicionar(@RequestBody @Valid  Cozinha cozinha) { //Anotamos o parâmetro "cozinha"
         return cadastroCozinhaService.salvar(cozinha);
     }
 
