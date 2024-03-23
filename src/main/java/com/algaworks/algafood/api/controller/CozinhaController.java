@@ -71,7 +71,7 @@ public class CozinhaController {
     }
 
     @PutMapping(value = "/{cozinhaId}")
-    public Cozinha actualizar(@RequestBody Cozinha cozinha, @PathVariable Long cozinhaId) {
+    public Cozinha actualizar(@RequestBody @Valid Cozinha cozinha, @PathVariable Long cozinhaId) {
 
         Cozinha cozinhaAtual = cadastroCozinhaService.hasOrNot(cozinhaId);
         BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");

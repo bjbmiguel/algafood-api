@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String MSG_ERRO_GENERICA_USUARIO_FINAL
             = "Ocorreu um erro interno inesperado no sistema. Tente novamente e se "
             + "o problema persistir, entre em contato com o administrador do sistema.";
+
+    @Autowired
+    private MessageSource messageSource; //Para resolver mensagens, ou seja , captura-la do file messages.properties.
 
     @Override  //Método que trata algumas exceções  da classe ResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
@@ -58,16 +64,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Override // subscrevemos o método handleTypeMismatch que lida com exceções do tipo TypeMismatchException
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-        return handleTypeMismatchException((MethodArgumentTypeMismatchException)ex,  headers,  status, request);
+        return handleTypeMismatchException((MethodArgumentTypeMismatchException) ex, headers, status, request);
     }
 
 
     private ResponseEntity<Object> handleTypeMismatchException(MethodArgumentTypeMismatchException ex,
-                                                               HttpHeaders headers, HttpStatus status, WebRequest request){
+                                                               HttpHeaders headers, HttpStatus status, WebRequest request) {
 
         ProblemType problemType = ProblemType.PARAMETRO_INVALIDO;
         String detail = String.format("O parâmetro da URL '%s' recebeu o valor '%s' que é um tipo inválido. Corrija e informa" +
-                " o valor compatível com o tipo '%s'.", ex.getParameter().getParameterName(), ex.getValue().toString(),
+                        " o valor compatível com o tipo '%s'.", ex.getParameter().getParameterName(), ex.getValue().toString(),
                 ex.getRequiredType().getSimpleName());
 
         Problem problem = createProblemBuilder(status, problemType, detail)
@@ -94,18 +100,23 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers, HttpStatus status, WebRequest request) {
         ProblemType problemType = ProblemType.DADOS_INVALIDOS;
         String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
 
         BindingResult bindingResult = ex.getBindingResult();
-
         List<Problem.Field> problemFields = bindingResult.getFieldErrors().stream()
-                .map(fieldError -> Problem.Field.builder()
-                        .name(fieldError.getField())
-                        .userMessage(fieldError.getDefaultMessage())
-                        .build())
+                .map(fieldError -> {
+
+                    //Como n vamos trabalhar com internacionalização usamos o LocaleContextHolder.getLocale() para pegar o locale do SO...
+                    String message = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
+
+                    return Problem.Field.builder()
+                            .name(fieldError.getField())
+                            .userMessage(message)
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         Problem problem = createProblemBuilder(status, problemType, detail)
@@ -140,8 +151,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
-    private  ResponseEntity<Object>  handlePropertyBindingException(PropertyBindingException ex,
-                                                HttpHeaders headers, HttpStatus status, WebRequest request) {
+    private ResponseEntity<Object> handlePropertyBindingException(PropertyBindingException ex,
+                                                                  HttpHeaders headers, HttpStatus status, WebRequest request) {
 
         ProblemType problemType = ProblemType.PROPRIEDADE_NAO_ENCONTRADA;
 
