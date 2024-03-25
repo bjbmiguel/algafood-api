@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.controller;
 
+import com.algaworks.algafood.core.validation.ValidacaoException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -26,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 @RequestMapping("/restaurantes")
 @RestController
 public class RestauranteController {
@@ -37,6 +39,8 @@ public class RestauranteController {
     @Autowired
     RestauranteRepository restauranteRepository;
 
+    @Autowired
+    private SmartValidator validator;
 
     @GetMapping
     public List<Restaurante> listar() {
@@ -134,6 +138,9 @@ public class RestauranteController {
         //Este método copia os valores do Map para o objecto restauranteAtual...
         merge(campos, restauranteAtual, request);
 
+        //Validamos o objecto
+        validate(restauranteAtual, "restaurante");
+
         return atualizar(restauranteId, restauranteAtual); // Reutilizamos o método atualiar
 
     }
@@ -166,6 +173,17 @@ public class RestauranteController {
             throw new HttpMessageNotReadableException(e.getMessage(), rootCause, serverHttpRequest);
         }
 
+    }
+
+    private void validate(Restaurante restaurante, String objectName) {
+
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(restaurante, objectName);
+
+        validator.validate(restaurante, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidacaoException(bindingResult);
+        }
     }
 
 
