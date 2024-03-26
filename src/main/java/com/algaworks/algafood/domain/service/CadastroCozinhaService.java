@@ -53,6 +53,7 @@ public class CadastroCozinhaService {
                 throw new CozinhaNaoEncontradaException(
                         cozinhaId);
             }
+
             cozinhaRepository.deleteById(cozinhaId);
 
         } catch (DataIntegrityViolationException e) {
