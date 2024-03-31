@@ -43,6 +43,7 @@ public class CadastratarRestauranteService {
         Cozinha cozinha = cadastroCozinhaService.hasOrNot(cozinhaId);
         restaurante.setCozinha(cozinha);
         return restauranteRepository.save(restaurante);
+
     }
 
 

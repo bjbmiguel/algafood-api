@@ -39,26 +39,23 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Autowired
     private MessageSource messageSource; //Para resolver mensagens, ou seja , captura-la do file messages.properties.
 
-    @Override  //Método que trata algumas exceções  da classe ResponseEntityExceptionHandler
+    @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
-        //Este classe ExceptionUtils é da biblioteca apache commons.leng3
         Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        //Se a raiz for uma instância de InvalidFormatException executamos este método handleInvalidFormatException
+
         if (rootCause instanceof InvalidFormatException) {
-
             return handleInvalidFormatException((InvalidFormatException) rootCause, headers, status, request);
-
         } else if (rootCause instanceof PropertyBindingException) {
-
             return handlePropertyBindingException((PropertyBindingException) rootCause, headers, status, request);
-
         }
 
         ProblemType problemType = ProblemType.MENSAGEM_INCOMPREENSIVEL;
         String detail = "O corpo da requisição está inválido. Verifique erro de sintaxe.";
 
-        Problem problem = createProblemBuilder(status, problemType, detail).build();
+        Problem problem = createProblemBuilder(status, problemType, detail)
+                .userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
+                .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -104,6 +101,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
+        System.out.printf("Entrei...");
         return handleValidationInternal(ex, ex.getBindingResult(), headers, status, request);
     }
 
@@ -214,6 +212,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
         List<Problem.Object> problemObjects = bindingResult.getAllErrors().stream()
                 .map(objectError -> {
+
                     String message = messageSource.getMessage(objectError, LocaleContextHolder.getLocale());
 
                     String name = objectError.getObjectName();

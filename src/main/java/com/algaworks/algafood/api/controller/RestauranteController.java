@@ -102,7 +102,7 @@ public class RestauranteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     // Usamos o ? para aceitar qualquer tipo de parâmetro...
-    public Restaurante adicionar(@RequestBody @Valid  Restaurante restaurante) {
+    public Restaurante adicionar(@RequestBody @Valid Restaurante restaurante) {
 
         try {
 

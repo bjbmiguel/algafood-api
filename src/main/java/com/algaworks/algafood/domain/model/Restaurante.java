@@ -35,6 +35,7 @@ public class Restaurante {
     @NotBlank//(groups = Groups.CadastroRestaurante.class) // Esta constraint está agrupa num grupo CadastroRestaurante
     private String nome;
 
+    @NotNull
     @PositiveOrZero//(groups = Groups.CadastroRestaurante.class)
     @Column(name = "taxa_frete", nullable = false)  //nullable --> not null
     private BigDecimal taxaFrete;
