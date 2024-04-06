@@ -1,7 +1,6 @@
 package com.algaworks.algafood.domain.model;
 
 import com.algaworks.algafood.core.validation.Groups;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -28,8 +27,6 @@ public class Cozinha {
     @Column(nullable = true)
     private String nome;
 
-
-    @JsonIgnore // vai ignorar a serialização de restaurante quando for serializar a cozinha.
     @OneToMany(mappedBy = "cozinha")
     List<Restaurante> restaurantes  = new ArrayList<>();
 

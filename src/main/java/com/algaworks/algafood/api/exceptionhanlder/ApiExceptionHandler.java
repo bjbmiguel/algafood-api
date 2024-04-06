@@ -26,6 +26,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,7 +102,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
-        System.out.printf("Entrei...");
+
         return handleValidationInternal(ex, ex.getBindingResult(), headers, status, request);
     }
 
@@ -273,7 +274,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             //Se o corpo for null, instanciamos um novo problema e passamos ao body...
             body = Problem.builder()
                     .title(status.getReasonPhrase())
-                    .timesTamp(LocalDateTime.now())
+                    .timesTamp(OffsetDateTime.now())
                     .userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
                     .status((status.value())).build();
 
@@ -281,7 +282,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
             body = Problem.builder()
                     .title((String) body)
-                    .timesTamp(LocalDateTime.now())
+                    .timesTamp(OffsetDateTime.now())
                     .userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
                     .status((status.value())).build();
         }
@@ -296,7 +297,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(status.value())
                 .type(problemType.getUri())
                 .title(problemType.getTitle())
-                .timesTamp(LocalDateTime.now())
+                .timesTamp(OffsetDateTime.now())
                 .detail(detail);
     }
 }

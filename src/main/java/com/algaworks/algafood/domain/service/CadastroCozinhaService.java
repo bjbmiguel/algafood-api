@@ -2,18 +2,15 @@ package com.algaworks.algafood.domain.service;
 
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +21,7 @@ public class CadastroCozinhaService {
     private CozinhaRepository cozinhaRepository;
 
     //Este método apeneas delega para o repo...
+    @Transactional
     public Cozinha salvar(Cozinha cozinha) { // Vamos usar para salvar e actualizar
         return cozinhaRepository.save(cozinha);
     }
@@ -33,6 +31,7 @@ public class CadastroCozinhaService {
       return  cozinhaRepository.consultarPorNome(nome);
     }*/
 
+    @Transactional
     public void excluirOld(Long cozinhaId) {
 
         try {
@@ -47,6 +46,7 @@ public class CadastroCozinhaService {
         }
     }
 
+    @Transactional
     public void excluir(Long cozinhaId) {
         try {
             if (!cozinhaRepository.existsById(cozinhaId)) {
@@ -55,6 +55,8 @@ public class CadastroCozinhaService {
             }
 
             cozinhaRepository.deleteById(cozinhaId);
+            //Para evitar a falha na captura da exceção DataIntegrityViolationException
+            cozinhaRepository.flush();
 
         } catch (DataIntegrityViolationException e) {
             throw new EntidadeEmUsoException(

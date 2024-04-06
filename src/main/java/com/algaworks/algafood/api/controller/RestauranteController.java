@@ -1,7 +1,12 @@
 package com.algaworks.algafood.api.controller;
 
+import com.algaworks.algafood.api.assembler.RestauranteInputAssembler;
+import com.algaworks.algafood.api.assembler.RestauranteInputDisassembler;
+import com.algaworks.algafood.api.assembler.RestauranteModelAssembler;
+import com.algaworks.algafood.api.model.RestauranteModel;
+import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.core.validation.ValidacaoException;
-import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
+import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Restaurante;
@@ -9,17 +14,14 @@ import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -42,6 +44,16 @@ public class RestauranteController {
     @Autowired
     private SmartValidator validator;
 
+    @Autowired
+    RestauranteModelAssembler restauranteModelAssembler;
+
+
+    @Autowired
+    RestauranteInputAssembler restauranteInputAssembler;
+
+    @Autowired
+    RestauranteInputDisassembler restauranteInputDisassembler;
+
     @GetMapping
     public List<Restaurante> listar() {
 
@@ -49,27 +61,27 @@ public class RestauranteController {
     }
 
     @GetMapping("/por-taxa-frete")
-    public List<Restaurante> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
+    public List<RestauranteModel> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
 
-        return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal));
     }
 
     @GetMapping("/por-nome-e-taxa-frete")
-    public List<Restaurante> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
+    public List<RestauranteModel> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
 
-        return restauranteRepository.findWithCriteria(nome, taxaFreteInicial, taxaFreteFinal);
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.findWithCriteria(nome, taxaFreteInicial, taxaFreteFinal));
     }
 
     @GetMapping("/com-frete-gratis")
-    public List<Restaurante> restaurantesComFreteGratis(String nome) {
+    public List<RestauranteModel> restaurantesComFreteGratis(String nome) {
 
-        return restauranteRepository.findComFreteGratis(nome);
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.findComFreteGratis(nome));
     }
 
     @GetMapping("/por-nome")
-    public List<Restaurante> restaurantePorNome(String nome, Long cozinhaId) {
+    public List<RestauranteModel> restaurantePorNome(String nome, Long cozinhaId) {
 
-        return restauranteRepository.consultarPorNome(nome, cozinhaId);
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.consultarPorNome(nome, cozinhaId));
     }
 
     @GetMapping("/primeiro-por-nome")
@@ -79,22 +91,21 @@ public class RestauranteController {
     }
 
     @GetMapping("/primeiro")
-    public Optional<Restaurante> buscarPrimeiro() {
-        return restauranteRepository.buscarPrimeiro();
+    public Optional<RestauranteModel> buscarPrimeiro() {
+        return Optional.of(restauranteModelAssembler.toModel(restauranteRepository.buscarPrimeiro().get()));
     }
 
     @GetMapping("/top2-por-nome")
-    public List<Restaurante> restaurantesTop2PorNome(String nome) {
+    public List<RestauranteModel> restaurantesTop2PorNome(String nome) {
 
-        return restauranteRepository.streamTop2ByNomeContaining(nome);
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.streamTop2ByNomeContaining(nome));
     }
 
 
     @GetMapping(value = "/{restauranteId}")
-    public Restaurante buscar(@PathVariable Long restauranteId) {
+    public RestauranteModel buscar(@PathVariable Long restauranteId) {
 
-
-        return cadastratarRestauranteService.hasOrNot(restauranteId);
+        return restauranteModelAssembler.toModel(cadastratarRestauranteService.hasOrNot(restauranteId));
 
     }
 
@@ -102,11 +113,13 @@ public class RestauranteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     // Usamos o ? para aceitar qualquer tipo de parâmetro...
-    public Restaurante adicionar(@RequestBody @Valid Restaurante restaurante) {
+    public RestauranteModel adicionar(@RequestBody @Valid RestauranteInput restauranteInput) {
 
         try {
 
-            return cadastratarRestauranteService.salvar(restaurante);
+            Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
+
+            return restauranteModelAssembler.toModel(cadastratarRestauranteService.salvar(restaurante));
 
         } catch (EntidadeNaoEncontradaException e) {
             //Tratamos a exceção do tipo EntidadeNaoEncontradaException e relancamos como uma NegocioException
@@ -116,20 +129,29 @@ public class RestauranteController {
 
 
     @PutMapping("/{restauranteId}")
-    public Restaurante atualizar(@PathVariable Long restauranteId,
-                                 @RequestBody @Valid Restaurante restaurante) {
+    public RestauranteModel atualizar(@PathVariable Long restauranteId,
+                                 @RequestBody @Valid RestauranteInput restauranteInput) {
 
-        Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
+        try {
 
-        BeanUtils.copyProperties(restaurante, restauranteAtual,
-                "id", "fomrasPagamento", "endereco", "dataCadastro", "produtos");
-        return cadastratarRestauranteService.salvar(restauranteAtual);
+            Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
+
+            Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
+
+            restauranteInputDisassembler.copyToDomainObject(restauranteInput, restauranteAtual);
+            //BeanUtils.copyProperties(restaurante, restauranteAtual,
+              //      "id", "formasPagamento", "endereco", "dataCadastro", "produtos");
+
+            return restauranteModelAssembler.toModel(cadastratarRestauranteService.salvar(restauranteAtual));
+        } catch (CozinhaNaoEncontradaException e) {
+            throw new NegocioException(e.getMessage());
+        }
 
     }
 
     // A idea é atualizar somente as propriedades que foram especificadas no corpo da requisição...
     @PatchMapping("/{restauranteId}") // Vai atender requis HTTP do tipi PATCH...
-    public Restaurante atualizarParcial(@PathVariable Long restauranteId,
+    public RestauranteModel atualizarParcial(@PathVariable Long restauranteId,
                                         @RequestBody Map<String, Object> campos, HttpServletRequest request) {
 
         //Map<String - propriedade do object | Object - o valor da propriedade>
@@ -141,7 +163,7 @@ public class RestauranteController {
         //Validamos o objecto
         validate(restauranteAtual, "restaurante");
 
-        return atualizar(restauranteId, restauranteAtual); // Reutilizamos o método atualiar
+        return atualizar(restauranteId, restauranteInputAssembler.fromDomainModelToInputModel(restauranteAtual)); // Reutilizamos o método atualiar
 
     }
 
@@ -194,6 +216,11 @@ public class RestauranteController {
 
         cadastratarRestauranteService.excluir(restauranteId);
     }
+
+
+
+
+
 
 
 }

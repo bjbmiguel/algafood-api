@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder //usamos para construir objectos de forma mais fluente...
@@ -18,7 +19,7 @@ public class Problem {
     private String detail; //Uma descrição mais detalhada sobre a ocurrência do problema
 
     private String userMessage;
-    private LocalDateTime timesTamp;
+    private OffsetDateTime timesTamp;
     private List<Object> objects;
 
 

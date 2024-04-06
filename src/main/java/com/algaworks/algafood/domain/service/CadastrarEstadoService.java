@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -34,15 +36,20 @@ public class CadastrarEstadoService {
         }
     }
 
+
+    @Transactional
     public Estado salvar(Estado estado) { //Vamos usar para salvar e actualizar
         return estadoRepository.save(estado);
     }
 
+    @Transactional
     public void excluir(Long estadoId) {
 
         try {
 
             estadoRepository.deleteById(estadoId);
+            //Para evitar a falha na captura da exceção DataIntegrityViolationException
+            estadoRepository.flush();
 
         } catch (EmptyResultDataAccessException e) {
             //Not Found

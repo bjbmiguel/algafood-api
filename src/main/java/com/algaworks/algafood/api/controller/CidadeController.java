@@ -1,9 +1,16 @@
 package com.algaworks.algafood.api.controller;
 
 
+import com.algaworks.algafood.api.assembler.CidadeInputDisassembler;
+import com.algaworks.algafood.api.assembler.CidadeModelAssembler;
+import com.algaworks.algafood.api.assembler.CozinhaInputDisassembler;
+import com.algaworks.algafood.api.assembler.CozinhaModelAssembler;
+import com.algaworks.algafood.api.model.CidadeModel;
+import com.algaworks.algafood.api.model.input.CidadeInput;
 import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Cidade;
+import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.service.CadastrarCidadeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,49 +29,58 @@ public class CidadeController {
     @Autowired
     CadastrarCidadeService cadastrarCidadeService;
 
+    @Autowired
+    private CidadeModelAssembler cidadeModelAssembler;
+
+    @Autowired
+    private CidadeInputDisassembler cidadeInputDisassembler;
+
     @GetMapping // Mapeamos as requ HTTP do tipo GET para este método
-    public List<Cidade> listar() {
-        return cadastrarCidadeService.listar();
+    public List<CidadeModel> listar() {
+
+        List<Cidade> todasCidades = cadastrarCidadeService.listar();
+
+        return cidadeModelAssembler.toCollectionModel(todasCidades);
     }
 
     @GetMapping("/{cidadeId}")
-    public Cidade buscar(@PathVariable Long cidadeId) {
+    public CidadeModel buscar(@PathVariable Long cidadeId) {
 
-        return cadastrarCidadeService.hasOrNot(cidadeId);
+        Cidade cidade = cadastrarCidadeService.hasOrNot(cidadeId);
+
+        return cidadeModelAssembler.toModel(cidade);
+
 
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // 201
-    // Usamos o ? para aceitar qualquer tipo de parâmetro...
-    public Cidade adicionar(@RequestBody @Valid  Cidade cidade) {
-
+    @ResponseStatus(HttpStatus.CREATED)
+    public CidadeModel adicionar(@RequestBody @Valid CidadeInput cidadeInput) {
         try {
-            return cadastrarCidadeService.salvar(cidade);
+            Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInput);
 
+            cidade = cadastrarCidadeService.salvar(cidade);
+
+            return cidadeModelAssembler.toModel(cidade);
         } catch (EstadoNaoEncontradaException e) {
-
             throw new NegocioException(e.getMessage(), e);
         }
     }
 
     @PutMapping("/{cidadeId}")
-    public Cidade atualizar(@PathVariable Long cidadeId,
-                            @RequestBody @Valid Cidade cidade) {
-
-        //Qualquer exceção EntidadeNaoEncontradaException ou de suas subclasses serão tratadas pelo método anotado com
-        // @ExceptionHandler(EntidadeNaoEncontradaException.class)
-        Cidade cidadeAtual = cadastrarCidadeService.hasOrNot(cidadeId);
-        BeanUtils.copyProperties(cidade, cidadeAtual, "id");
-
+    public CidadeModel atualizar(@PathVariable Long cidadeId,
+                                 @RequestBody @Valid CidadeInput cidadeInput) {
         try {
+            Cidade cidadeAtual = cadastrarCidadeService.hasOrNot(cidadeId);
 
-            return cadastrarCidadeService.salvar(cidadeAtual);
+            cidadeInputDisassembler.copyToDomainObject(cidadeInput, cidadeAtual);
 
+            cidadeAtual = cadastrarCidadeService.salvar(cidadeAtual);
+
+            return cidadeModelAssembler.toModel(cidadeAtual);
         } catch (EstadoNaoEncontradaException e) {
-            throw new NegocioException(e.getMessage(), e);//Passando a causa (método que lançou) também...
+            throw new NegocioException(e.getMessage(), e);
         }
-
     }
 
     @DeleteMapping(value = "/{cidadeId}")
