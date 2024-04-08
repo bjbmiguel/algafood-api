@@ -3,16 +3,12 @@ package com.algaworks.algafood.api.controller;
 
 import com.algaworks.algafood.api.assembler.CidadeInputDisassembler;
 import com.algaworks.algafood.api.assembler.CidadeModelAssembler;
-import com.algaworks.algafood.api.assembler.CozinhaInputDisassembler;
-import com.algaworks.algafood.api.assembler.CozinhaModelAssembler;
 import com.algaworks.algafood.api.model.CidadeModel;
-import com.algaworks.algafood.api.model.input.CidadeInput;
+import com.algaworks.algafood.api.model.input.FormaDePagamantoInput;
 import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Cidade;
-import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.service.CadastrarCidadeService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +51,7 @@ public class CidadeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CidadeModel adicionar(@RequestBody @Valid CidadeInput cidadeInput) {
+    public CidadeModel adicionar(@RequestBody @Valid FormaDePagamantoInput cidadeInput) {
         try {
             Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInput);
 
@@ -69,7 +65,7 @@ public class CidadeController {
 
     @PutMapping("/{cidadeId}")
     public CidadeModel atualizar(@PathVariable Long cidadeId,
-                                 @RequestBody @Valid CidadeInput cidadeInput) {
+                                 @RequestBody @Valid FormaDePagamantoInput cidadeInput) {
         try {
             Cidade cidadeAtual = cadastrarCidadeService.hasOrNot(cidadeId);
 

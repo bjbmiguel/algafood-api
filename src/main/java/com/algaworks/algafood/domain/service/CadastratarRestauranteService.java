@@ -2,6 +2,7 @@ package com.algaworks.algafood.domain.service;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.RestauranteNaoEncontradoException;
+import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
@@ -30,6 +31,9 @@ public class CadastratarRestauranteService {
     @Autowired
     CadastroCozinhaService cadastroCozinhaService;
 
+    @Autowired
+    CadastrarCidadeService cadastrarCidadeService;
+
     public List<Restaurante> todos() {
 
         return restauranteRepository.findAll();
@@ -39,8 +43,14 @@ public class CadastratarRestauranteService {
     public Restaurante salvar(Restaurante restaurante) {
 
         Long cozinhaId = restaurante.getCozinha().getId();
+        Long cidadeId = restaurante.getEndereco().getCidade().getId();
+
         Cozinha cozinha = cadastroCozinhaService.hasOrNot(cozinhaId);
+        Cidade cidade = cadastrarCidadeService.hasOrNot(cidadeId);
+
         restaurante.setCozinha(cozinha);
+        restaurante.getEndereco().setCidade(cidade);
+
         return restauranteRepository.save(restaurante);
 
     }
@@ -82,6 +92,20 @@ public class CadastratarRestauranteService {
         return restauranteRepository.findById(restauranteId).orElseThrow(
                 () -> new RestauranteNaoEncontradoException(
                         restauranteId));
+    }
+
+    @Transactional
+    public void ativar(Long idRestaurante){
+
+        Restaurante restaurante = hasOrNot(idRestaurante);
+        restaurante.ativar();
+    }
+
+    @Transactional
+    public void inativar(Long idRestaurante){
+
+        Restaurante restaurante = hasOrNot(idRestaurante);
+        restaurante.inativar();
     }
 
 }

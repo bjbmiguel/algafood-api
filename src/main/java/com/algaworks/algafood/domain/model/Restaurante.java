@@ -40,6 +40,9 @@ public class Restaurante {
     private BigDecimal taxaFrete;
 
 
+    private Boolean ativo = Boolean.TRUE;
+
+
     @NotNull//(groups = Groups.CadastroRestaurante.class)
     @ConvertGroup(from = Default.class, to = Groups.CozinhaId.class)
     @Valid // será feito uma validação em cascata, ou seja, vai validar as proprieddades do objecto Cozinha
@@ -70,5 +73,14 @@ public class Restaurante {
     @OneToMany(mappedBy = "restaurante")
     List<Produto> produotos = new ArrayList<>();
 
+    public void ativar(){
+
+        this.setAtivo(true);
+    }
+
+    public void inativar(){
+
+        this.setAtivo(false);
+    }
 
 }

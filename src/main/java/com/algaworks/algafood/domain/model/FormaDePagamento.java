@@ -15,6 +15,7 @@ public class FormaDePagamento {
     @EqualsAndHashCode.Include // Vai criar os métodos equals e hascod usando apenas o ID
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Usando o "GenerationType.IDENTITY" quem vai a gerar a PK é o mysql...
     private  Long id;
+
     @Column(nullable = true)
     private String descricao;
 }

@@ -6,6 +6,7 @@ import com.algaworks.algafood.api.assembler.RestauranteModelAssembler;
 import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.core.validation.ValidacaoException;
+import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -121,7 +122,7 @@ public class RestauranteController {
 
             return restauranteModelAssembler.toModel(cadastratarRestauranteService.salvar(restaurante));
 
-        } catch (EntidadeNaoEncontradaException e) {
+        } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException  e) {
             //Tratamos a exceção do tipo EntidadeNaoEncontradaException e relancamos como uma NegocioException
             throw new NegocioException(e.getMessage());
         }
@@ -143,7 +144,7 @@ public class RestauranteController {
               //      "id", "formasPagamento", "endereco", "dataCadastro", "produtos");
 
             return restauranteModelAssembler.toModel(cadastratarRestauranteService.salvar(restauranteAtual));
-        } catch (CozinhaNaoEncontradaException e) {
+        } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException  e) {
             throw new NegocioException(e.getMessage());
         }
 
@@ -215,6 +216,18 @@ public class RestauranteController {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
 
         cadastratarRestauranteService.excluir(restauranteId);
+    }
+
+    @PutMapping("/{restauranteId}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void ativar(@PathVariable Long restauranteId) {
+        cadastratarRestauranteService.ativar(restauranteId);
+    }
+
+    @DeleteMapping("/{restauranteId}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inativar(@PathVariable Long restauranteId) {
+        cadastratarRestauranteService.inativar(restauranteId);
     }
 
 
