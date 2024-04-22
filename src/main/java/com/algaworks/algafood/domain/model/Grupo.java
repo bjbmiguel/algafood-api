@@ -19,7 +19,7 @@ public class Grupo {
     private  Long id;
 
     @Column(nullable = false)
-    private String descricao;
+    private String nome;
 
     @JsonIgnore
     @ManyToMany

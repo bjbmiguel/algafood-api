@@ -1,13 +1,11 @@
 package com.algaworks.algafood.jpa;
 
 import com.algaworks.algafood.AlgafoodApiApplication;
-import com.algaworks.algafood.domain.model.FormaDePagamento;
+import com.algaworks.algafood.domain.model.FormaPagamento;
 import com.algaworks.algafood.domain.repository.FormaDePagamentoRepository;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
-
-import java.math.BigDecimal;
 
 
 public class InclusaoFormaDePagamento {
@@ -19,7 +17,7 @@ public class InclusaoFormaDePagamento {
         //Pegamos um bean do tipo CadastroCozinha com base no applicationContext
         FormaDePagamentoRepository formaDePagamentoRepository = applicationContext.getBean(FormaDePagamentoRepository.class);
 
-        FormaDePagamento formaDePagamento = new FormaDePagamento();
+        FormaPagamento formaDePagamento = new FormaPagamento();
         formaDePagamento.setDescricao("Cartão de crédito e débito");
 
 

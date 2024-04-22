@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import javax.persistence.EntityManager;
 import java.util.Optional;
 
-public class CustomJpaRepositoryImpl<T, D> extends SimpleJpaRepository<T, D> implements CustomJpaRepository<T, D> {
+public class CustomJpaRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID>
+        implements CustomJpaRepository<T, ID> {
 
     private EntityManager manager;
     public CustomJpaRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
@@ -25,4 +26,12 @@ public class CustomJpaRepositoryImpl<T, D> extends SimpleJpaRepository<T, D> imp
 
         return Optional.ofNullable(entity);
     }
+
+    @Override
+    public void detach(T entity) { // Usamos este método para desanexar uma entidade do contexto de persistência do JPA.
+
+        manager.detach(entity);
+    }
+
+
 }

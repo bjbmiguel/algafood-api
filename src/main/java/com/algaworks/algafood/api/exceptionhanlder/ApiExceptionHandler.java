@@ -136,7 +136,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemType problemType = ProblemType.PROPRIEDADE_NAO_ENCONTRADA;
 
         //Montamos o detalhes da mensagem...
-        String detail = String.format("A propriedade '%s' não existe no tipo '%s'.", ex.getPropertyName(), ex.getReferringClass().getSimpleName());
+
+        String detail = String.format("A propriedade '%s' não existe. "
+                + "Corrija ou remova essa propriedade e tente novamente.", ex.getPropertyName());
+
+        //String detail = String.format("A propriedade '%s' não existe no tipo '%s'.",
+          //      ex.getPropertyName(), ex.getReferringClass().getSimpleName());
 
         Problem problem = createProblemBuilder(status, problemType, detail)
                 .userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)

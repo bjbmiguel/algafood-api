@@ -1,12 +1,11 @@
 package com.algaworks.algafood.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +20,15 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Usando o "GenerationType.IDENTITY" quem vai a gerar a PK é o mysql...
     private  Long id;
 
+    @NotBlank
     @Column(nullable = false)
     private String nome;
 
+    @NotBlank
     @Column(nullable = false)
     private String email;
 
+    @NotBlank
     @Column(nullable = false)
     private String senha;
 
@@ -39,4 +41,14 @@ public class Usuario {
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "grupo_id"))
     List<Grupo> grupos = new ArrayList<>(); //Coleção de grupos...
+
+
+    public boolean senhaCoincideCom(String senha) {
+        return getSenha().equals(senha);
+    }
+
+    public boolean senhaNaoCoincideCom(String senha) {
+        //Se o resultado da chamada do mét. senhaCoincideCom for true, vai devolver false e vice-versa
+        return !senhaCoincideCom(senha);
+    }
 }

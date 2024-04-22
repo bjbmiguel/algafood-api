@@ -7,7 +7,8 @@ import java.util.Optional;
 
 @NoRepositoryBean  // Esta anotação indica ao Spring que esta repositório n será instanciado... será usado para fins
 // de herança
-public interface CustomJpaRepository<T, D> extends JpaRepository<T, D> {
+public interface CustomJpaRepository<T, ID> extends JpaRepository<T, ID> {
     // T - Representa a classe e o D -- Representa o ID da classe ...
     Optional<T> buscarPrimeiro();
+    void detach(T entity);
 }

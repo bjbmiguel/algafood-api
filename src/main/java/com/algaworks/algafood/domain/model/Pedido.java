@@ -51,7 +51,7 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "forma_pagamento_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_pedido_forma_pagamento"))
-    private FormaDePagamento formaPagamento;
+    private FormaPagamento formaPagamento;
 
     @ManyToOne
     @JoinColumn(name = "restaurante_id", nullable = false,

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EstadoRepository  extends JpaRepository<Estado, Long> {
+public interface EstadoRepository  extends CustomJpaRepository<Estado, Long> {
 
 }
