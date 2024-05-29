@@ -9,8 +9,6 @@ import javax.validation.constraints.NotNull;
 @Setter
 public class FormaDePagamentoInput {
 
-    private Long id;
-
     @NotNull
     private String descricao;
 

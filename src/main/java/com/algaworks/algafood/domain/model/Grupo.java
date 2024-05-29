@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity // A classe representa uma entidade
 @Data
@@ -26,5 +26,13 @@ public class Grupo {
     @JoinTable(name = "grupo_permissao",
             joinColumns = @JoinColumn(name = "grupo_id"),
             inverseJoinColumns = @JoinColumn(name = "permissao_id"))
-    List<Permissao> permissoes = new ArrayList<>();
+    Set<Permissao> permissoes = new HashSet<>(); // Uma collection do tipo set n permite itens duplicado...
+
+    public void removerPermissao(Permissao permissao){
+        this.getPermissoes().remove(permissao);
+    }
+
+    public void adicionarPermissao(Permissao permissao){
+        this.getPermissoes().add(permissao);
+    }
 }

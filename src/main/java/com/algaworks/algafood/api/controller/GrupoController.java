@@ -38,7 +38,7 @@ public class GrupoController {
 
     @GetMapping("/{grupoId}")
     public GrupoModel buscar(@PathVariable Long grupoId) {
-        Grupo grupo = cadastrarGrupoService.hasOrNot(grupoId);
+        Grupo grupo = cadastrarGrupoService.findById(grupoId);
 
         return grupoModelAssembler.toModel(grupo);
     }
@@ -57,7 +57,7 @@ public class GrupoController {
     public GrupoModel atualizar(@PathVariable Long grupoId,
                                  @RequestBody @Valid GrupoInput grupoInput) {
 
-        Grupo grupoAtual = cadastrarGrupoService.hasOrNot(grupoId);
+        Grupo grupoAtual = cadastrarGrupoService.findById(grupoId);
 
         grupoInputDisassembler.copyToDomainObject(grupoInput, grupoAtual);
 

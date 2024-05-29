@@ -13,6 +13,10 @@ public class UsuarioNaoEncontradoException extends EntidadeNaoEncontradaExceptio
        this(String.format("Não existe um cadastro de Usuário com o código %d", usuarioId));
    }
 
+    public UsuarioNaoEncontradoException(Long usuarioId, Long restauranteId) {
+        this(String.format("Não existe um cadastro de Usuário com o código %d associado " +
+                "ao Restaurante de código %d", usuarioId, restauranteId));
+    }
 
 
 }

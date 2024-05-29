@@ -30,7 +30,7 @@ public class RestauranteFormaPagamentoController {
 
     @GetMapping
     public List<FormaPagamentoModel> listar(@PathVariable Long restauranteId) {
-        Restaurante restaurante = cadastroRestaurante.hasOrNot(restauranteId);
+        Restaurante restaurante = cadastroRestaurante.findById(restauranteId);
 
         return formaPagamentoModelAssembler.toCollectionModel(restaurante.getFormasPagamento());
     }

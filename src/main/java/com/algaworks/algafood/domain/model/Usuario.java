@@ -42,7 +42,6 @@ public class Usuario {
             inverseJoinColumns = @JoinColumn(name = "grupo_id"))
     List<Grupo> grupos = new ArrayList<>(); //Coleção de grupos...
 
-
     public boolean senhaCoincideCom(String senha) {
         return getSenha().equals(senha);
     }
@@ -50,5 +49,13 @@ public class Usuario {
     public boolean senhaNaoCoincideCom(String senha) {
         //Se o resultado da chamada do mét. senhaCoincideCom for true, vai devolver false e vice-versa
         return !senhaCoincideCom(senha);
+    }
+
+    public  void removerGrupo(Grupo grupo){
+        this.getGrupos().remove(grupo);
+    }
+
+    public  void adicionarGrupo(Grupo grupo){
+        this.getGrupos().add(grupo);
     }
 }

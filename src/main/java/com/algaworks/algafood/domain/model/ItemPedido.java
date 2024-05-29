@@ -37,4 +37,8 @@ public class ItemPedido {
             foreignKey = @ForeignKey(name = "fk_item_pedido_pedido"))
     private Pedido pedido;
 
+    public void calcularPrecoTotal(){
+        this.setPrecoTotal(new BigDecimal(String.valueOf(this.getPrecoUnitario().multiply(BigDecimal.valueOf(this.getQuantidade())))));
+    }
+
 }

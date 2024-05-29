@@ -40,7 +40,7 @@ public class UsuarioController {
 
     @GetMapping("/{usuarioId}")
     public UsuarioModel buscar(@PathVariable Long usuarioId) {
-        Usuario usuario = cadastrarUsuarioService.hasOrNot(usuarioId);
+        Usuario usuario = cadastrarUsuarioService.findById(usuarioId);
 
         return usuarioModelAssembler.toModel(usuario);
     }
@@ -59,7 +59,7 @@ public class UsuarioController {
     public UsuarioModel atualizar(@PathVariable Long usuarioId,
                                  @RequestBody @Valid UsuarioInput usuarioInput) {
 
-        Usuario usuarioAtual = cadastrarUsuarioService.hasOrNot(usuarioId);
+        Usuario usuarioAtual = cadastrarUsuarioService.findById(usuarioId);
 
         usuarioInputDisassembler.copyToDomainObject(usuarioInput, usuarioAtual);
 

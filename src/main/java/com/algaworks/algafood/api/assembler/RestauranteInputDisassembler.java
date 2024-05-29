@@ -17,9 +17,9 @@ public class RestauranteInputDisassembler {
 
     public Restaurante toDomainObject(RestauranteInput restauranteInput) {
         return mapperConfig.modelMapper().map(restauranteInput, Restaurante.class);
-
     }
 
+    //copyProperties from InputModel to Entity
     public void copyToDomainObject(RestauranteInput restauranteInput, Restaurante restaurante) {
         // Para evitar org.hibernate.HibernateException: identifier of an instance of
         // com.algaworks.algafood.domain.model.Cozinha was altered from 1 to 2

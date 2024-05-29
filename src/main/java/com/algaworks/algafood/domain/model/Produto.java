@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 @Entity
@@ -23,6 +24,7 @@ public class Produto {
     private String descricao;
 
     @Column(nullable = false)
+    @PositiveOrZero
     private BigDecimal preco;
 
     @Column(nullable = false)

@@ -1,15 +1,14 @@
 package com.algaworks.algafood.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -22,33 +21,36 @@ public class Pedido {
     private  Long id;
 
     @Column(nullable = false)
+    private BigDecimal subtotal;
+
+    @Column(nullable = false)
     private BigDecimal taxaFrete;
 
     @Column(nullable = false)
     private BigDecimal valorTotal;
 
-    @JsonIgnore
     @Embedded
     private Endereco endereco;
 
     @Column(length = 10, nullable = false)
+
     @Enumerated(EnumType.STRING)
-    private StatusPedido status;
+    private StatusPedido status = StatusPedido.CRIADO;
 
     @CreationTimestamp
     @Column(nullable = false, columnDefinition = "datetime")
-    private LocalDateTime dataCriacao;
+    private OffsetDateTime dataCriacao;
 
     @Column(columnDefinition = "datetime")
-    private LocalDateTime dataConfirmacao;
+    private OffsetDateTime dataConfirmacao;
 
     @Column(columnDefinition = "datetime")
-    private LocalDateTime dataCancelamento;
+    private OffsetDateTime dataEntrega;
 
     @Column(columnDefinition = "datetime")
-    private LocalDateTime dataEntrega;
+    private OffsetDateTime dataCancelamento;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) //So faz o select quando um get na instância "formaPagamento" for feito
     @JoinColumn(name = "forma_pagamento_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_pedido_forma_pagamento"))
     private FormaPagamento formaPagamento;
@@ -63,7 +65,22 @@ public class Pedido {
             foreignKey = @ForeignKey(name = "fk_pedido_usuario_cliente"))
     private Usuario cliente;
 
-    @OneToMany(mappedBy = "pedido")
-    private List<ItemPedido> itens = new ArrayList<>();
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL) //CascadeTypeAll = P/cadastrar os itens do pedido...
+    private Set<ItemPedido> itens = new HashSet<>();
+
+    public void calcularPrecoTotal(){
+        this.getItens().forEach(ItemPedido::calcularPrecoTotal);
+    }
+
+    public void calcularSubtotal(){
+        this.setSubtotal(getItens().stream().map(ItemPedido::getPrecoTotal).reduce(BigDecimal.valueOf(0), BigDecimal::add));
+    }
+
+    public void calcularValorTotal(){
+
+        BigDecimal subtotal = getSubtotal();
+        this.setTaxaFrete(this.getRestaurante().getTaxaFrete());
+        this.setValorTotal(subtotal.add(getTaxaFrete()));
+    }
 
 }

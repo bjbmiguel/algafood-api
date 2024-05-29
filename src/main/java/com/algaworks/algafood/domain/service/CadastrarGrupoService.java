@@ -1,9 +1,9 @@
 package com.algaworks.algafood.domain.service;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
-import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
-import com.algaworks.algafood.domain.exception.GrupoNaoEncontradaException;
+import com.algaworks.algafood.domain.exception.GrupoNaoEncontradoException;
 import com.algaworks.algafood.domain.model.Grupo;
+import com.algaworks.algafood.domain.model.Permissao;
 import com.algaworks.algafood.domain.repository.GrupoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,6 +21,7 @@ public class CadastrarGrupoService {
     @Autowired //Injetamos o componente  EstadoRepository...
     GrupoRepository grupoRepository;
 
+
     public List<Grupo> listar() {
         return grupoRepository.findAll();
     }
@@ -28,10 +29,11 @@ public class CadastrarGrupoService {
     public Optional<Grupo> buscar(Long grupoId) {
 
         try {
+
             return grupoRepository.findById(grupoId);
 
         } catch (EmptyResultDataAccessException e) {
-            throw new GrupoNaoEncontradaException(grupoId);
+            throw new GrupoNaoEncontradoException(grupoId);
         }
     }
 
@@ -52,19 +54,49 @@ public class CadastrarGrupoService {
 
         } catch (EmptyResultDataAccessException e) {
             //Not Found
-            throw new GrupoNaoEncontradaException(grupoId);
+            throw new GrupoNaoEncontradoException(grupoId);
         } catch (DataIntegrityViolationException e) {
             // Uma cozinha está em uso por um restaurante....
             throw new EntidadeEmUsoException(String.format(MSG_GRUPO_EM_USO, grupoId));
         }
     }
 
-
     //Retorna um objecto do tipo cozinha na resposta, caso contrário uma resposta com código 404 será lançada...
-    public Grupo hasOrNot(Long grupoId) {
+    public Grupo findById(Long grupoId) {
 
         return grupoRepository.findById(grupoId).orElseThrow(
-                () -> new GrupoNaoEncontradaException(
+                () -> new GrupoNaoEncontradoException(
                         grupoId));
     }
+
+    @Transactional
+    public void removerPermissao(Grupo grupo, Permissao permissao) {
+        grupo.removerPermissao(permissao);
+    }
+
+    @Transactional
+    public void adicionarPermissao(Grupo grupo, Permissao permissao) {
+        grupo.adicionarPermissao(permissao);
+    }
+
+    public boolean existById(Long grupoId){
+
+        if (!grupoRepository.existsById(grupoId)) {
+            throw new GrupoNaoEncontradoException(
+                    grupoId);
+        }
+
+        return true;
+    }
+
+
+    public void checkIfExistById(Long grupoId){
+
+        if (!grupoRepository.existsById(grupoId)) {
+            throw new GrupoNaoEncontradoException(
+                    grupoId);
+        }
+
+    }
+
 }

@@ -4,7 +4,7 @@ package com.algaworks.algafood.api.controller;
 import com.algaworks.algafood.api.assembler.CidadeInputDisassembler;
 import com.algaworks.algafood.api.assembler.CidadeModelAssembler;
 import com.algaworks.algafood.api.model.CidadeModel;
-import com.algaworks.algafood.api.model.input.FormaDePagamantoInput;
+import com.algaworks.algafood.api.model.input.CidadeInput;
 import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Cidade;
@@ -51,7 +51,7 @@ public class CidadeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CidadeModel adicionar(@RequestBody @Valid FormaDePagamantoInput cidadeInput) {
+    public CidadeModel adicionar(@RequestBody @Valid CidadeInput cidadeInput) {
         try {
             Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInput);
 
@@ -65,7 +65,7 @@ public class CidadeController {
 
     @PutMapping("/{cidadeId}")
     public CidadeModel atualizar(@PathVariable Long cidadeId,
-                                 @RequestBody @Valid FormaDePagamantoInput cidadeInput) {
+                                 @RequestBody @Valid CidadeInput cidadeInput) {
         try {
             Cidade cidadeAtual = cadastrarCidadeService.hasOrNot(cidadeId);
 

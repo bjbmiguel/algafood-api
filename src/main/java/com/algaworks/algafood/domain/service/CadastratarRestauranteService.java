@@ -1,11 +1,9 @@
 package com.algaworks.algafood.domain.service;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
+import com.algaworks.algafood.domain.exception.FormaDePagamentoNaoEncontradoException;
 import com.algaworks.algafood.domain.exception.RestauranteNaoEncontradoException;
-import com.algaworks.algafood.domain.model.Cidade;
-import com.algaworks.algafood.domain.model.Cozinha;
-import com.algaworks.algafood.domain.model.FormaPagamento;
-import com.algaworks.algafood.domain.model.Restaurante;
+import com.algaworks.algafood.domain.model.*;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +34,6 @@ public class CadastratarRestauranteService {
 
     @Autowired
     CadastrarFormaPagamentoService cadastrarFormaPagamentoService;
-
-
 
 
     public List<Restaurante> todos() {
@@ -71,7 +66,7 @@ public class CadastratarRestauranteService {
 
         } catch (EmptyResultDataAccessException e) {
 
-            throw new RestauranteNaoEncontradoException( restauranteId);
+            throw new RestauranteNaoEncontradoException(restauranteId);
 
         }
     }
@@ -94,41 +89,102 @@ public class CadastratarRestauranteService {
         }
     }
 
-    public Restaurante hasOrNot(Long restauranteId) {
+    public Restaurante findById(Long restauranteId) {
 
         return restauranteRepository.findById(restauranteId).orElseThrow(
                 () -> new RestauranteNaoEncontradoException(
                         restauranteId));
     }
 
-    @Transactional
-    public void ativar(Long idRestaurante){
+    public boolean existsById(Long restauranteId) {
 
-        Restaurante restaurante = hasOrNot(idRestaurante);
+        if (!restauranteRepository.existsById(restauranteId)) {
+            throw new RestauranteNaoEncontradoException(restauranteId); //Aqui viria a Exception que gera o código 404
+        }
+        return true;
+    }
+
+    public void checkIfExistsById(Long restauranteId) {
+
+        if (!restauranteRepository.existsById(restauranteId)) {
+            throw new RestauranteNaoEncontradoException(restauranteId); //Aqui viria a Exception que gera o código 404
+        }
+
+    }
+
+    @Transactional
+    public void ativar(Long idRestaurante) {
+
+        Restaurante restaurante = findById(idRestaurante);
         restaurante.ativar();
     }
 
     @Transactional
     public void inativar(Long idRestaurante){
-
-        Restaurante restaurante = hasOrNot(idRestaurante);
+        Restaurante restaurante = findById(idRestaurante);
         restaurante.inativar();
     }
 
     @Transactional
+    public void abrir(Long idRestaurante){
+        Restaurante restaurante = findById(idRestaurante);
+        restaurante.abrir();
+    }
+
+    @Transactional
+    public void fechar(Long idRestaurante){
+        Restaurante restaurante = findById(idRestaurante);
+        restaurante.fechar();
+    }
+
+    @Transactional
     public void desassociarFormaPagamento(Long restauranteId, Long formaPagamentoId) {
-        Restaurante restaurante = hasOrNot(restauranteId);
-        FormaPagamento formaPagamento = cadastrarFormaPagamentoService.hasOrNot(formaPagamentoId);
+        Restaurante restaurante = findById(restauranteId);
+        FormaPagamento formaPagamento = cadastrarFormaPagamentoService.findById(formaPagamentoId);
 
         restaurante.removerFormaPagamento(formaPagamento);
     }
 
     @Transactional
+    // Não precisamos chamar o método save porque o objecto restaurante está no contexto de Persistência do JPA.
     public void associarFormaPagamento(Long restauranteId, Long formaPagamentoId) {
-        Restaurante restaurante = hasOrNot(restauranteId);
-        FormaPagamento formaPagamento = cadastrarFormaPagamentoService.hasOrNot(formaPagamentoId);
-
+        Restaurante restaurante = findById(restauranteId);
+        FormaPagamento formaPagamento = cadastrarFormaPagamentoService.findById(formaPagamentoId);
         restaurante.adicionarFormaPagamento(formaPagamento);
     }
 
+    @Transactional
+    public void removerResponsavel(Restaurante restaurante, Usuario usuario) {
+        restaurante.removerUsuarioResponsavel(usuario);
+    }
+
+    @Transactional
+    public void adicionarResponsavel(Restaurante restaurante, Usuario usuario) {
+        restaurante.adicionarUsuarioResponsavel(usuario);
+    }
+
+    @Transactional
+    public void ativar(List<Long> restauranteIds) {
+        restauranteIds.forEach(this::ativar);
+    }
+
+    @Transactional
+    public void inativar(List<Long> restauranteIds) {
+        restauranteIds.forEach(this::inativar);
+    }
+
+
+    public void validateFormaPagamentoById(Long restauranteId, Long formaPagamentoId) {
+
+        Restaurante restaurante = findById(restauranteId);
+
+        if (restaurante.validateFormaPagamentoById(formaPagamentoId).isEmpty()){
+
+            FormaPagamento formaPagamento = cadastrarFormaPagamentoService.findById(formaPagamentoId);
+
+            throw new FormaDePagamentoNaoEncontradoException(
+                    String.format("A forma de pagamento  '%s' não é aceite por este restaurante", formaPagamento.getDescricao())
+            );
+        }
+    }
 }

@@ -8,8 +8,8 @@ import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.core.validation.ValidacaoException;
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
+import com.algaworks.algafood.domain.exception.RestauranteNaoEncontradoException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
@@ -56,9 +56,8 @@ public class RestauranteController {
     RestauranteInputDisassembler restauranteInputDisassembler;
 
     @GetMapping
-    public List<Restaurante> listar() {
-
-        return cadastratarRestauranteService.todos();
+    public List<RestauranteModel> listar() {
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
     }
 
     @GetMapping("/por-taxa-frete")
@@ -106,7 +105,7 @@ public class RestauranteController {
     @GetMapping(value = "/{restauranteId}")
     public RestauranteModel buscar(@PathVariable Long restauranteId) {
 
-        return restauranteModelAssembler.toModel(cadastratarRestauranteService.hasOrNot(restauranteId));
+        return restauranteModelAssembler.toModel(cadastratarRestauranteService.findById(restauranteId));
 
     }
 
@@ -135,10 +134,10 @@ public class RestauranteController {
 
         try {
 
-            Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
 
-            Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
+            Restaurante restauranteAtual = cadastratarRestauranteService.findById(restauranteId);
 
+            //copyProperties from InputModel to Entity
             restauranteInputDisassembler.copyToDomainObject(restauranteInput, restauranteAtual);
             //BeanUtils.copyProperties(restaurante, restauranteAtual,
               //      "id", "formasPagamento", "endereco", "dataCadastro", "produtos");
@@ -156,7 +155,7 @@ public class RestauranteController {
                                         @RequestBody Map<String, Object> campos, HttpServletRequest request) {
 
         //Map<String - propriedade do object | Object - o valor da propriedade>
-        Restaurante restauranteAtual = cadastratarRestauranteService.hasOrNot(restauranteId);
+        Restaurante restauranteAtual = cadastratarRestauranteService.findById(restauranteId);
 
         //Este método copia os valores do Map para o objecto restauranteAtual...
         merge(campos, restauranteAtual, request);
@@ -231,9 +230,37 @@ public class RestauranteController {
     }
 
 
+    @PutMapping("/{restauranteId}/fechamento") //Modelando uma regra de negócio como um recurso
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void fechar(@PathVariable Long restauranteId) {
+        cadastratarRestauranteService.fechar(restauranteId);
+    }
 
+    @PutMapping("/{restauranteId}/abrir") //Modelando uma regra de negócio como um recurso
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void abrir(@PathVariable Long restauranteId) {
+        cadastratarRestauranteService.abrir(restauranteId);
+    }
 
+    @PutMapping("/ativacoes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void ativarMultiplos(@RequestBody List<Long> restauranteIds) {
+        try {
+            cadastratarRestauranteService.ativar(restauranteIds);
+        } catch (RestauranteNaoEncontradoException e) {
+            throw new NegocioException(e.getMessage(), e);
+        }
+    }
 
+    @DeleteMapping("/ativacoes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inativarMultiplos(@RequestBody List<Long> restauranteIds) {
+        try {
+            cadastratarRestauranteService.inativar(restauranteIds);
+        } catch (RestauranteNaoEncontradoException e) {
+            throw new NegocioException(e.getMessage(), e);
+        }
+    }
 
 
 }

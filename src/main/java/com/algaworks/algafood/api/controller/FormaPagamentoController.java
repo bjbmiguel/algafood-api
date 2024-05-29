@@ -3,7 +3,7 @@ package com.algaworks.algafood.api.controller;
 import com.algaworks.algafood.api.assembler.FormaDePagamanetoInputDisassembler;
 import com.algaworks.algafood.api.assembler.FormaPagamentoModelAssembler;
 import com.algaworks.algafood.api.model.FormaPagamentoModel;
-import com.algaworks.algafood.api.model.input.FormaDePagamantoInput;
+import com.algaworks.algafood.api.model.input.FormaDePagamentoInput;
 import com.algaworks.algafood.domain.model.FormaPagamento;
 import com.algaworks.algafood.domain.repository.FormaDePagamentoRepository;
 import com.algaworks.algafood.domain.service.CadastrarFormaPagamentoService;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @RequestMapping("/formas-de-pagamentos")
 @RestController
-public class FormaDePagamentoController {
+public class FormaPagamentoController {
 
     @Autowired
     private FormaDePagamentoRepository formaDePagamentoRepository;
@@ -36,20 +36,20 @@ public class FormaDePagamentoController {
     @GetMapping(value = "/{formaDePagamentoId}")
     public FormaPagamentoModel buscar(@PathVariable Long formaDePagamentoId) {  // Será feito um bind de forma automática
 
-        return formaDePagamentoModelAssembler.toModel(formaDePagamentoService.hasOrNot(formaDePagamentoId));
+        return formaDePagamentoModelAssembler.toModel(formaDePagamentoService.findById(formaDePagamentoId));
     }
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
     @ResponseStatus(HttpStatus.CREATED) //Costumizamos o status da resposta... para 201
-    public FormaPagamentoModel adicionar(@RequestBody @Valid FormaDePagamantoInput formaDePagamantoInput) { //Anotamos o parâmetro "cozinha"
+    public FormaPagamentoModel adicionar(@RequestBody @Valid FormaDePagamentoInput formaDePagamantoInput) { //Anotamos o parâmetro "cozinha"
         FormaPagamento formaDePagamento = formaDePagamanetoInputDisassembler.toDomainObject(formaDePagamantoInput);
         return formaDePagamentoModelAssembler.toModel(formaDePagamentoService.salvar(formaDePagamento));
     }
 
     @PutMapping(value = "/{formaDePagamentoId}")
-    public FormaPagamentoModel actualizar(@RequestBody @Valid FormaDePagamantoInput formaDePagamantoInput, @PathVariable Long formaDePagamentoId) {
+    public FormaPagamentoModel actualizar(@RequestBody @Valid FormaDePagamentoInput formaDePagamantoInput, @PathVariable Long formaDePagamentoId) {
 
-        FormaPagamento formaDePagamento = formaDePagamentoService.hasOrNot(formaDePagamentoId);
+        FormaPagamento formaDePagamento = formaDePagamentoService.findById(formaDePagamentoId);
         formaDePagamanetoInputDisassembler.copyToDomainObject(formaDePagamantoInput, formaDePagamento);
         return  formaDePagamentoModelAssembler.toModel(formaDePagamentoService.salvar(formaDePagamento));
 

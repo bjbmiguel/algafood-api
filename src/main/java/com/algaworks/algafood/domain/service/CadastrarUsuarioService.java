@@ -3,6 +3,7 @@ package com.algaworks.algafood.domain.service;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.exception.UsuarioNaoEncontradoException;
+import com.algaworks.algafood.domain.model.Grupo;
 import com.algaworks.algafood.domain.model.Usuario;
 import com.algaworks.algafood.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,21 +72,40 @@ public class CadastrarUsuarioService {
 
 
     //Retorna um objecto do tipo cozinha na resposta, caso contrário uma resposta com código 404 será lançada...
-    public Usuario hasOrNot(Long usuarioId) {
+    public Usuario findById(Long usuarioId) {
 
         return usuarioRepository.findById(usuarioId).orElseThrow(
                 () -> new UsuarioNaoEncontradoException(
                         usuarioId));
     }
 
+    public void checkIfExistsById(Long usuarioId) {
+
+        if (!usuarioRepository.existsById(usuarioId)) {
+
+            throw new UsuarioNaoEncontradoException(usuarioId);
+
+        }
+    }
+
     @Transactional
     public void alterarSenha(Long usuarioId, String senhaAtual, String novaSenha) {
-        Usuario usuario = hasOrNot(usuarioId);
+        Usuario usuario = findById(usuarioId);
 
-        if (usuario.senhaNaoCoincideCom(senhaAtual)){
+        if (usuario.senhaNaoCoincideCom(senhaAtual)) {
             throw new NegocioException("Senha atual informada não coincide com a senha do usuário.");
         }
 
         usuario.setSenha(novaSenha);
+    }
+
+    @Transactional
+    public void adicionarGrupo(Usuario usuario, Grupo grupo) {
+        usuario.adicionarGrupo(grupo);
+    }
+
+    @Transactional
+    public void removerGrupo(Usuario usuario, Grupo grupo) {
+        usuario.removerGrupo(grupo);
     }
 }

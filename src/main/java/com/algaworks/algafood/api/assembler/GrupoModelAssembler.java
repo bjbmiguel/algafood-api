@@ -15,10 +15,13 @@ public class GrupoModelAssembler {
     @Autowired
     private ModelMapperConfig mapperConfig;
 
+    //Entity --> Model
     public GrupoModel toModel(Grupo grupo) {
+
         return mapperConfig.modelMapper().map(grupo, GrupoModel.class);
     }
 
+    //List Entity --> List Model
     public List<GrupoModel> toCollectionModel(List<Grupo> grupos) {
         return grupos.stream()
                 .map(grupo -> toModel(grupo))
