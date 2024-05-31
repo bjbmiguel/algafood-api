@@ -18,8 +18,9 @@ public class ModelMapperConfig {
 
         var enderecoToEnderecoModelTypeMap = modelMapper.createTypeMap(Endereco.class, EnderecoModel.class);
 
+        //Para n preencher/ignorar o set do pedido durante o mapper , será preenchido de via auto-incremento..
         modelMapper.createTypeMap(ItemPedidoInput.class, ItemPedido.class).addMappings(
-                mapper -> mapper.skip(ItemPedido::setId));//Para n preencher/ignorar o set do pedido durante o mapper
+                mapper -> mapper.skip(ItemPedido::setId));
 
 
         enderecoToEnderecoModelTypeMap.<String>addMapping(

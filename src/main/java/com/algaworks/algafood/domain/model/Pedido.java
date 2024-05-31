@@ -7,7 +7,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -17,8 +19,9 @@ public class Pedido {
 
     @Id
     @EqualsAndHashCode.Include // Vai criar os métodos equals e hascod usando apenas o ID
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Usando o "GenerationType.IDENTITY" quem vai a gerar a PK é o mysql...
-    private  Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // Usando o "GenerationType.IDENTITY" quem vai a gerar a PK é o mysql...
+    private Long id;
 
     @Column(nullable = false)
     private BigDecimal subtotal;
@@ -66,21 +69,25 @@ public class Pedido {
     private Usuario cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL) //CascadeTypeAll = P/cadastrar os itens do pedido...
-    private Set<ItemPedido> itens = new HashSet<>();
+    private List<ItemPedido> itens = new ArrayList<>();
 
-    public void calcularPrecoTotal(){
+
+    public void calcularValorTotal() {
         this.getItens().forEach(ItemPedido::calcularPrecoTotal);
+        this.setSubtotal(getItens().stream().map(ItemPedido::getPrecoTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        this.setValorTotal(getSubtotal().add(getTaxaFrete()));
     }
 
-    public void calcularSubtotal(){
-        this.setSubtotal(getItens().stream().map(ItemPedido::getPrecoTotal).reduce(BigDecimal.valueOf(0), BigDecimal::add));
+    public boolean isCreated(){
+
+        return status.equals(StatusPedido.CRIADO);
     }
 
-    public void calcularValorTotal(){
+    public boolean isConfirmed(){
 
-        BigDecimal subtotal = getSubtotal();
-        this.setTaxaFrete(this.getRestaurante().getTaxaFrete());
-        this.setValorTotal(subtotal.add(getTaxaFrete()));
+        return status.equals(StatusPedido.CONFIRMADO);
     }
+
 
 }
