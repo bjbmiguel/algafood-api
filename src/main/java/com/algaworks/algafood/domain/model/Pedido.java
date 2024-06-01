@@ -1,5 +1,6 @@
 package com.algaworks.algafood.domain.model;
 
+import com.algaworks.algafood.domain.exception.NegocioException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,10 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Data
@@ -22,6 +20,9 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     // Usando o "GenerationType.IDENTITY" quem vai a gerar a PK é o mysql...
     private Long id;
+
+    @Column(nullable = false)
+    private String codigo;
 
     @Column(nullable = false)
     private BigDecimal subtotal;
@@ -79,14 +80,35 @@ public class Pedido {
         this.setValorTotal(getSubtotal().add(getTaxaFrete()));
     }
 
-    public boolean isCreated(){
-
-        return status.equals(StatusPedido.CRIADO);
+    public void confirmar() {
+        setStatus(StatusPedido.CONFIRMADO);
+        setDataConfirmacao(OffsetDateTime.now());
     }
 
-    public boolean isConfirmed(){
+    public void entregar() {
+        setStatus(StatusPedido.ENTREGUE);
+        setDataEntrega(OffsetDateTime.now());
+    }
 
-        return status.equals(StatusPedido.CONFIRMADO);
+    public void cancelar() {
+        setStatus(StatusPedido.CANCELADO);
+        setDataCancelamento(OffsetDateTime.now());
+    }
+
+    private void setStatus(StatusPedido novoStatus) {
+        if (getStatus().naoPodeAlterarPara(novoStatus)) {
+            throw new NegocioException(
+                    String.format("Status do pedido %s não pode ser alterado de %s para %s",
+                            getCodigo(), getStatus().getDescricao(),
+                            novoStatus.getDescricao()));
+        }
+
+        this.status = novoStatus;
+    }
+
+    @PrePersist
+    private void gerarCodigo(){
+        setCodigo(UUID.randomUUID().toString());
     }
 
 

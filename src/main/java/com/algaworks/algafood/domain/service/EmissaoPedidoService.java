@@ -30,11 +30,10 @@ public class EmissaoPedidoService {
     @Autowired
     CadastratarRestauranteService cadastratarRestauranteService;
 
-    public  Pedido findById(Long pedidoId){
+    public  Pedido findByCodigo(String codigoPedido){
 
-        return pedidoRepository.findById(pedidoId).orElseThrow(
-                () -> new PedidoNaoEncontradoException(
-                        pedidoId));
+        return pedidoRepository.findByCodigo(codigoPedido).orElseThrow(
+                () -> new PedidoNaoEncontradoException(codigoPedido));
     }
 
 
