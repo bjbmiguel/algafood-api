@@ -5,6 +5,7 @@ import com.algaworks.algafood.api.assembler.RestauranteInputDisassembler;
 import com.algaworks.algafood.api.assembler.RestauranteModelAssembler;
 import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.api.model.input.RestauranteInput;
+import com.algaworks.algafood.api.model.view.RestauranteView;
 import com.algaworks.algafood.core.validation.ValidacaoException;
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
@@ -13,11 +14,13 @@ import com.algaworks.algafood.domain.exception.RestauranteNaoEncontradoException
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -55,11 +58,69 @@ public class RestauranteController {
     @Autowired
     RestauranteInputDisassembler restauranteInputDisassembler;
 
+    @JsonView(RestauranteView.Resumo.class)
     @GetMapping
     public List<RestauranteModel> listar() {
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
     }
 
+    //Projecao com parâmetro...
+    @JsonView(RestauranteView.ApenasNomes.class)
+    @GetMapping(params = "projecao=apenas-nome")
+    public List<RestauranteModel> listarResumido() {
+        return listar();
+    }
+
+
+    /*
+    //@RequestParam(required = false) --> o parâmetro "projecao" n é obrigatório
+    @GetMapping
+    public MappingJacksonValue listar(@RequestParam(required = false) String projecao) {
+
+        List<Restaurante> restauranteList = restauranteRepository.findAll();
+        List<RestauranteModel> restauranteModels = restauranteModelAssembler.toCollectionModel(restauranteList);
+
+        //Embrulhamos um "restauranteModels" dentro do MappingJacksonValue
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(restauranteModels);
+
+        // Definimos a view a usar neste MappingJacksonValue
+
+        mappingJacksonValue.setSerializationView(RestauranteView.Resumo.class);
+
+        if("apenas-nome".equalsIgnoreCase(projecao)){
+
+            mappingJacksonValue.setSerializationView(RestauranteView.ApenasNomes.class);
+
+        }else if("completo".equalsIgnoreCase(projecao)){
+
+            mappingJacksonValue.setSerializationView(null);
+        }
+
+        return mappingJacksonValue;
+    }
+
+*/
+
+    /*
+    //Projecao sem parâmetro...
+    @GetMapping
+    public List<RestauranteModel> listar() {
+        return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
+    }
+
+    //Projecao com parâmetro...
+    @JsonView(RestauranteView.Resumo.class)
+    @GetMapping(params = "projecao=resumo")
+    public List<RestauranteModel> listarResumido() {
+        return listar();
+    }
+
+    @JsonView(RestauranteView.ApenasNomes.class)
+    @GetMapping(params = "projecao=apenas-nomes")
+    public List<RestauranteModel> listarApenasNomes() {
+        return listar();
+    }
+*/
     @GetMapping("/por-taxa-frete")
     public List<RestauranteModel> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
 
