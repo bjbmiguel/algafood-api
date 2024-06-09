@@ -10,6 +10,9 @@ public class TomcatCustomizer implements WebServerFactoryCustomizer<TomcatServle
     @Override
     public void customize(TomcatServletWebServerFactory factory) {
         factory.addConnectorCustomizers(connector -> connector.setAttribute("relaxedQueryChars", "[]"));
+        //To allow plus as signal not as blank space
+        factory.addConnectorCustomizers(connector -> connector.setProperty("relaxedQueryChars", "+"));
+
     }
 
 }
