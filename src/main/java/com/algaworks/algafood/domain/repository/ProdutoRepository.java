@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProdutoRepository extends CustomJpaRepository<Produto, Long> {
+public interface ProdutoRepository extends CustomJpaRepository<Produto, Long> , ProdutoRepositoryQueries {
 
 //A query será montada em tempo de execução...
    List<Produto> findTodosProdutosByRestaurante(Restaurante restaurante);
