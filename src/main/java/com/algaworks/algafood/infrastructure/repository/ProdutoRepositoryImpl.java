@@ -13,12 +13,12 @@ import com.algaworks.algafood.domain.repository.ProdutoRepositoryQueries;
 public class ProdutoRepositoryImpl implements ProdutoRepositoryQueries {
 
     @PersistenceContext
-    private EntityManager manager;
+    private EntityManager manager; //Injetamos o Manager
 
-    @Transactional
+    @Transactional// Para evitar que alguém chama o método fora de uma transação
     @Override
     public FotoProduto save(FotoProduto foto) {
-        return manager.merge(foto);
+        return manager.merge(foto); //Para inserir e atualizar
     }
 
 }

@@ -33,7 +33,7 @@ public class RestauranteProdutoFotoController {
     private FotoProdutoModelAssembler fotoProdutoModelAssembler;
 
 
-
+    /*
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void atualizarFotoOnlyUpload(@PathVariable Long restauranteId,
                               @PathVariable Long produtoId, @Valid FotoProdutoInput fotoProdutoInput) {
@@ -46,19 +46,20 @@ public class RestauranteProdutoFotoController {
         //Criamos um path onde a foto será armazenada
         var arquivoFoto = Path.of("/home/banguela/catalogo", nomeArquivo);
 
+        //Just to Debug...
         System.out.println(fotoProdutoInput.getDescricao());
         System.out.println(arquivoFoto);
         System.out.println(fotoProdutoInput.getArquivo().getContentType());
 
         try {
-            //Transferimos a foto usando o métoto transferTo da classe MultipartFile
+            //Transferimos a foto usando o método transferTo da classe MultipartFile
             fotoProdutoInput.getArquivo().transferTo(arquivoFoto);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
     }
-
+*/
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public FotoProdutoModel atualizarFoto(@PathVariable Long restauranteId,
