@@ -33,4 +33,6 @@ public class Produto {
     @ManyToOne
     @JoinColumn(nullable = false) // Usamos para especificar o nome da chave estrangeira... fk
     Restaurante restaurante;
+
+    public Long getRestauranteId() {return restaurante.getId();}
 }

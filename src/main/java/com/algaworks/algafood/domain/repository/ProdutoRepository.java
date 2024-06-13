@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ProdutoRepository extends CustomJpaRepository<Produto, Long> , ProdutoRepositoryQueries {
 
-//A query será montada em tempo de execução...
+  //A query será montada em tempo de execução...
    List<Produto> findTodosProdutosByRestaurante(Restaurante restaurante);
 
     @Query("from Produto p where p.ativo = true and p.restaurante = :restaurante")
@@ -23,7 +23,7 @@ public interface ProdutoRepository extends CustomJpaRepository<Produto, Long> , 
     Optional<Produto> validateProdutoByIdProdutoAndRestaurante(@Param("restaurante") Long restauranteId,
                                @Param("produto") Long produtoId);
 
-Optional<Produto> findByIdAndRestaurante(Long id, Restaurante restaurante);
+    Optional<Produto> findByIdAndRestaurante(Long id, Restaurante restaurante);
 
     @Query("select f from FotoProduto f join f.produto p "
             + "where p.restaurante.id = :restauranteId and f.produto.id = :produtoId")

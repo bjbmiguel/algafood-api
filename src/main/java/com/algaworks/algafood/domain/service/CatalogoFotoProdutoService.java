@@ -1,5 +1,6 @@
 package com.algaworks.algafood.domain.service;
 
+import com.algaworks.algafood.domain.exception.FotoProdutoNaoEncontradaException;
 import com.algaworks.algafood.domain.model.FotoProduto;
 import com.algaworks.algafood.domain.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class CatalogoFotoProdutoService {
     FotoStorageService fotoStorageService;
 
     @Transactional
-    public FotoProduto salvar(FotoProduto foto, InputStream inputStream){
+    public FotoProduto salvar(FotoProduto foto, InputStream inputStream) {
 
         Long restauranteId = foto.getRestauranteId();
         Long produtoId = foto.getProduto().getId();
@@ -45,6 +46,24 @@ public class CatalogoFotoProdutoService {
         //Armazenamos agora a foto Ser uma exceção for lançada um rollback será feito no Banco de Dados...
         fotoStorageService.substituir(nomeArquivoExistente, novaFoto);
         return foto;
+    }
+
+    public FotoProduto findFotoByIdProdutoRestaurante(Long restauranteId, Long produtoId) {
+
+        return produtoRepository.findFotoById(restauranteId, produtoId).orElseThrow(
+                () -> new FotoProdutoNaoEncontradaException(restauranteId,
+                        produtoId));
+    }
+
+    @Transactional
+    public void excluir(Long restauranteId, Long produtoId) {
+
+        FotoProduto fotoProduto = findFotoByIdProdutoRestaurante(restauranteId, produtoId);
+
+        produtoRepository.delete(fotoProduto);
+        produtoRepository.flush();//Sincronizar a Exclusão com o Banco de Dados:
+        fotoStorageService.remover(fotoProduto.getNomeArquivo());
+
     }
 
 }
