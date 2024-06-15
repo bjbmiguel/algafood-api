@@ -42,6 +42,7 @@ public class CatalogoFotoProdutoService {
         FotoStorageService.NovaFoto novaFoto = FotoStorageService.NovaFoto.builder()
                 .nomeAquivo(foto.getNomeArquivo())
                 .inputStream(inputStream) //Recebemos o fluxo de dados do arquivo..
+                .contentType(foto.getContentType())
                 .build();
         //Armazenamos agora a foto Ser uma exceção for lançada um rollback será feito no Banco de Dados...
         fotoStorageService.substituir(nomeArquivoExistente, novaFoto);

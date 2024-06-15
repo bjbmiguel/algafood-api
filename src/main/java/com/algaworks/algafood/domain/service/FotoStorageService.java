@@ -8,7 +8,8 @@ import lombok.Getter;
 
 public interface FotoStorageService {
 
-    InputStream recuperar(String nomeArquivo);
+    FotoRecuperada recuperar(String nomeArquivo);
+
 
     void armazenar(NovaFoto novaFoto);
 
@@ -33,6 +34,24 @@ public interface FotoStorageService {
 
         private String nomeAquivo;
         private InputStream inputStream;
+        private String contentType;
+
+    }
+
+    @Builder
+    @Getter
+    class FotoRecuperada {
+
+        private InputStream inputStream;
+        private String url;
+
+        public boolean temUrl() {
+            return url != null;
+        }
+
+        public boolean temInputStream() {
+            return inputStream != null;
+        }
 
     }
 

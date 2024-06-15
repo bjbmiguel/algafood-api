@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Service
 public class LocalFotoStorageService implements FotoStorageService {
 
     public static final String USER_HOME = System.getProperty("user.home");
@@ -24,7 +22,7 @@ public class LocalFotoStorageService implements FotoStorageService {
 
 
     @Override
-    public InputStream recuperar(String nomeArquivo) {
+    public FotoRecuperada recuperar(String nomeArquivo) {
 
         Path pathArquivo = getArquivoPath(nomeArquivo);
 
@@ -34,7 +32,9 @@ public class LocalFotoStorageService implements FotoStorageService {
                 throw new StorageException(String.format("O arquivo %s não existe.", nomeArquivo));
             }
 
-            return  Files.newInputStream(pathArquivo);
+            FotoRecuperada fotoRecuperada = FotoRecuperada.builder().inputStream(Files.newInputStream(pathArquivo)).build();
+
+            return  fotoRecuperada;
 
         } catch (Exception e) {
 
