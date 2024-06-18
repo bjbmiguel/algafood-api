@@ -39,7 +39,6 @@ public class AmazonS3Config {
         if (StorageProperties.TipoStorage.S3.equals(storageProperties.getTipo())) {
             return new S3FotoStorageService();
         } else {
-
             return new LocalFotoStorageService();
         }
     }

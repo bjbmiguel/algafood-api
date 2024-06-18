@@ -10,6 +10,11 @@ public class FluxoPedidoService {
 
     @Autowired
     EmissaoPedidoService emissaoPedidoService;
+    private static final String TEMPLATE_PEDIDO_CONFIRMADO = "pedido-confirmado.html";
+
+
+    @Autowired
+    private EnvioEmailService envioEmail;
 
     //O pedido precisa estar com o status criada...
     @Transactional
@@ -17,6 +22,15 @@ public class FluxoPedidoService {
 
         Pedido pedido = emissaoPedidoService.findByCodigo(codigoPedido);
         pedido.confirmar();
+
+        var mensagem = EnvioEmailService.Mensagem.builder()
+                .assunto(pedido.getRestaurante().getNome() + " - Pedido confirmado")
+                .corpo(TEMPLATE_PEDIDO_CONFIRMADO)
+                .destinatario(pedido.getCliente().getEmail())
+                .variavel("pedido", pedido)
+                .build();
+
+        envioEmail.enviar(mensagem);
     }
 
     @Transactional
