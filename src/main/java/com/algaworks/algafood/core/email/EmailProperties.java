@@ -21,6 +21,6 @@ public class EmailProperties {
     private Implementacao impl = Implementacao.FAKE;
 
     public enum Implementacao {
-        SMTP, FAKE
+        SMTP, FAKE, SANDBOX
     }
 }
