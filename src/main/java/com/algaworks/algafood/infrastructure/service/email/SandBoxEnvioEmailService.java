@@ -1,66 +1,28 @@
 package com.algaworks.algafood.infrastructure.service.email;
 
 import com.algaworks.algafood.core.email.EmailProperties;
-import com.algaworks.algafood.domain.service.EnvioEmailService;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 
-public class SandBoxEnvioEmailService implements EnvioEmailService {
+public class SandBoxEnvioEmailService extends SmtpEnvioEmailService {
 
     private static final String ENCODE= "UTF-8";
 
     @Autowired
-    private JavaMailSender mailSender; //Do pacote Spring, usada para criar uma inst de MimeMessage
-
-    @Autowired
     private EmailProperties emailProperties;
 
-    @Autowired
-    private Configuration freemarkerConfig;
-
-    @Value("${algafood.email.sandbox.destinatario}")
-    private String destinatario;
-
-
+    //Subscrevwmos o método criarMimeMessage de SmtpEnvioEmailService
     @Override
-    public void enviar(Mensagem mensagem) {
+    protected MimeMessage criarMimeMessage(Mensagem mensagem) throws MessagingException {
+        MimeMessage mimeMessage = super.criarMimeMessage(mensagem); //Usamos o método criarMimeMessage  da super classe
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, ENCODE);
+        helper.setTo(emailProperties.getSandbox().getDestinatario());//Passamos o destinatário como sandBox...
 
-      try {
-
-          String corpo = processarTemplate(mensagem);
-
-          MimeMessage mimeMessage = mailSender.createMimeMessage();//Representa a mensagem que queremos enviar...
-          MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, ENCODE);//Auxiliar a configurar o mimeMessage de forma fácil..
-          helper.setSubject(mensagem.getAssunto());
-          helper.setText(corpo, true);//O segundo parame, boolean, representa um corpo html
-          helper.setTo(destinatario);
-          helper.setFrom(emailProperties.getRemetente());
-
-          mailSender.send(mimeMessage);
-
-      }catch (Exception e){//Pegamos qualquer exception...
-
-          throw new EmailException("Não foi possível enviar e-mail", e);
-      }
+        return mimeMessage;
     }
 
-
-    protected String processarTemplate(Mensagem mensagem) {
-        try {
-            Template template = freemarkerConfig.getTemplate(mensagem.getCorpo());
-
-            return FreeMarkerTemplateUtils.processTemplateIntoString(
-                    template, mensagem.getVariaveis());
-        } catch (Exception e) {
-            throw new EmailException("Não foi possível montar o template do e-mail", e);
-        }
-    }
 }
