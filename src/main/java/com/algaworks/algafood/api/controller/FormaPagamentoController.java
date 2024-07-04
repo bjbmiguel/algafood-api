@@ -67,13 +67,25 @@ public class FormaPagamentoController {
     }
 
     @GetMapping(value = "/{formaDePagamentoId}")
-    public ResponseEntity<FormaPagamentoModel> buscar(@PathVariable Long formaDePagamentoId) {  // Será feito um bind de forma automática
+    public ResponseEntity<FormaPagamentoModel> buscar(ServletWebRequest request,
+                                                      @PathVariable Long formaDePagamentoId) { //Será feito um bind de forma automática
 
-        var formaPagamento = formaDePagamentoModelAssembler.toModel(formaDePagamentoService.findById(formaDePagamentoId));
+        ShallowEtagHeaderFilter.disableContentCaching(request.getRequest());
+
+        var formaPagamento = formaDePagamentoService.findById(formaDePagamentoId);
+        var eTag = String.valueOf(formaPagamento.getDataAtualizacao().toEpochSecond());
+
+        if (request.checkNotModified(eTag)) {
+            return null;
+        }
+
+        var formaPagamentoModel = formaDePagamentoModelAssembler.toModel(formaPagamento);
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(10, TimeUnit.SECONDS))
-                .body(formaPagamento);
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.SECONDS).cachePublic())
+                .eTag(eTag)
+                .body(formaPagamentoModel);
+
     }
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
@@ -89,7 +101,6 @@ public class FormaPagamentoController {
         FormaPagamento formaDePagamento = formaDePagamentoService.findById(formaDePagamentoId);
         formaDePagamanetoInputDisassembler.copyToDomainObject(formaDePagamantoInput, formaDePagamento);
         return formaDePagamentoModelAssembler.toModel(formaDePagamentoService.salvar(formaDePagamento));
-
     }
 
     @DeleteMapping(value = "/{formaDePagamentoId}")

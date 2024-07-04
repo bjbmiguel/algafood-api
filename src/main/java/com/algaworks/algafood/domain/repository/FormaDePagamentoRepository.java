@@ -13,4 +13,5 @@ public interface FormaDePagamentoRepository  extends CustomJpaRepository<FormaPa
     @Query("select max(dataAtualizacao) from FormaPagamento")
     OffsetDateTime getDataUltimaAtualizacao();
 
+
 }
