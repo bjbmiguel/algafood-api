@@ -72,20 +72,27 @@ public class FormaPagamentoController {
 
         ShallowEtagHeaderFilter.disableContentCaching(request.getRequest());
 
-        var formaPagamento = formaDePagamentoService.findById(formaDePagamentoId);
-        var eTag = String.valueOf(formaPagamento.getDataAtualizacao().toEpochSecond());
+        String eTag = "0";
+
+        OffsetDateTime dataAtualizacao = formaDePagamentoRepository
+                .getDataAtualizacaoById(formaDePagamentoId);
+
+        if (dataAtualizacao != null) {
+            eTag = String.valueOf(dataAtualizacao.toEpochSecond());
+        }
 
         if (request.checkNotModified(eTag)) {
             return null;
         }
 
+
+        var formaPagamento = formaDePagamentoService.findById(formaDePagamentoId);
         var formaPagamentoModel = formaDePagamentoModelAssembler.toModel(formaPagamento);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(10, TimeUnit.SECONDS).cachePublic())
                 .eTag(eTag)
                 .body(formaPagamentoModel);
-
     }
 
     @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
