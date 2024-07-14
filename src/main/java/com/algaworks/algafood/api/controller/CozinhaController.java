@@ -4,24 +4,28 @@ import com.algaworks.algafood.api.assembler.CozinhaInputDisassembler;
 import com.algaworks.algafood.api.assembler.CozinhaModelAssembler;
 import com.algaworks.algafood.api.model.CozinhaModel;
 import com.algaworks.algafood.api.model.input.CozinhaInput;
+import com.algaworks.algafood.api.openapi.controller.CozinhaControllerOpenApi;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
-@RequestMapping("/cozinhas")
-// Esta anotação é usada para mapear as req HTTP feitas neste controller, ou seja, todas as reqs. /cozinhas vão cair aqui...
 @RestController
 // Esta anotação define a classe num controlador de modos que ela possa lidar com requisições HTTP e devolver respostas...
-public class CozinhaController {
+@RequestMapping("/cozinhas")
+// Esta anotação é usada para mapear as req HTTP feitas neste controller, ou seja, todas as reqs. /cozinhas vão cair aqui...
+public class CozinhaController implements CozinhaControllerOpenApi {
 
     //TODO analisar o comportamento do usdo da anotação  @GetMapping sem argumento em dois métodos
     //TODO anaisar o comportamento do uso da anotação @RequestMapping directamente nos métodos
@@ -38,21 +42,26 @@ public class CozinhaController {
     @Autowired
     CozinhaInputDisassembler cozinhaInputDisassembler;
 
-    @GetMapping
-    public List<CozinhaModel> listar(Pageable pageable) {
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public Page<CozinhaModel> listar(@PageableDefault(size = 10) Pageable pageable) {
 
-        Page<Cozinha> cozinhaPage = cozinhaRepository.findAll(pageable);
+        Page<Cozinha> cozinhasPage = cozinhaRepository.findAll(pageable);
 
-        return cozinhaModelAssembler.toCollectionModel(cozinhaPage.getContent());
+        List<CozinhaModel> cozinhasModel = cozinhaModelAssembler.toCollectionModel(cozinhasPage.getContent());
+
+        Page<CozinhaModel> cozinhasModelPage = new PageImpl<>(cozinhasModel, pageable,
+                cozinhasPage.getTotalElements());
+
+        return cozinhasModelPage;
     }
 
-    @GetMapping(value = "/{cozinhaId}")
+    @GetMapping(path = "/{cozinhaId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CozinhaModel buscar(@PathVariable Long cozinhaId) {  // Será feito um bind de forma automática
 
         return cozinhaModelAssembler.toModel(cadastroCozinhaService.hasOrNot(cozinhaId));
     }
 
-    @GetMapping("/primeiro")
+    @GetMapping(path = "/primeiro", produces = MediaType.APPLICATION_JSON_VALUE)
     public Optional<CozinhaModel> buscarPrimeiro() {
 
         return Optional.of(cozinhaModelAssembler.toModel(cozinhaRepository.buscarPrimeiro().get()));
@@ -65,39 +74,39 @@ public class CozinhaController {
         return cozinhaModelAssembler.toCollectionModel(cozinhaRepository.findTodasByNomeContaining(nome));
     }
 
-    @GetMapping(value = "/unico-por-nome")
+    @GetMapping(path = "/unico-por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     //--> nome --> nome Retorna uma única instância
     public Optional<CozinhaModel> buscarPorNomeUnico(String nome) { //o nome virá por "query String"
 
         return Optional.of(cozinhaModelAssembler.toModel(cozinhaRepository.findByNome(nome).get()));
     }
 
-    @PostMapping // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
     @ResponseStatus(HttpStatus.CREATED) //Costumizamos o status da resposta... para 201
     public CozinhaModel adicionar(@RequestBody @Valid CozinhaInput cozinhaInput) { //Anotamos o parâmetro "cozinha"
         Cozinha cozinha = cozinhaInputDisassembler.toDomainObject(cozinhaInput);
         return cozinhaModelAssembler.toModel(cadastroCozinhaService.salvar(cozinha));
     }
 
-    @PutMapping(value = "/{cozinhaId}")
-    public CozinhaModel actualizar(@RequestBody @Valid CozinhaInput cozinhaInput, @PathVariable Long cozinhaId) {
+    @PutMapping(path = "/{cozinhaId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CozinhaModel atualizar(@PathVariable Long cozinhaId, @RequestBody @Valid CozinhaInput cozinhaInput) {
 
         Cozinha cozinhaAtual = cadastroCozinhaService.hasOrNot(cozinhaId);
         cozinhaInputDisassembler.copyToDomainObject(cozinhaInput, cozinhaAtual);
-       // BeanUtils.copyProperties(cozinhaInput, cozinhaAtual, "id");
-        return  cozinhaModelAssembler.toModel(cadastroCozinhaService.salvar(cozinhaAtual));
+        // BeanUtils.copyProperties(cozinhaInput, cozinhaAtual, "id");
+        return cozinhaModelAssembler.toModel(cadastroCozinhaService.salvar(cozinhaAtual));
 
     }
 
 
+    @DeleteMapping(path = "/{cozinhaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remover(@PathVariable Long cozinhaId) {
 
-@DeleteMapping(value = "/{cozinhaId}")
-@ResponseStatus(HttpStatus.NO_CONTENT)
-public void remover(@PathVariable Long cozinhaId) {
+        cadastroCozinhaService.excluir(cozinhaId);
 
-    cadastroCozinhaService.excluir(cozinhaId);
-
-}
+    }
 
 
 }
