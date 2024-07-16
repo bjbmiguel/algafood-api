@@ -4,6 +4,7 @@ import com.algaworks.algafood.api.assembler.EstadoInputDisassembler;
 import com.algaworks.algafood.api.assembler.EstadoModelAssembler;
 import com.algaworks.algafood.api.model.EstadoModel;
 import com.algaworks.algafood.api.model.input.EstadoInput;
+import com.algaworks.algafood.api.openapi.controller.EstadoControllerOpenApi;
 import com.algaworks.algafood.domain.model.Estado;
 import com.algaworks.algafood.domain.service.CadastrarEstadoService;
 import org.springframework.beans.BeanUtils;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequestMapping("/estados")
 @RestController
 // Definimos a classe Estado como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
-public class EstadoController {
+public class EstadoController implements EstadoControllerOpenApi {
 
     @Autowired // Injetamos a dependência
     private CadastrarEstadoService cadastrarEstadoService;

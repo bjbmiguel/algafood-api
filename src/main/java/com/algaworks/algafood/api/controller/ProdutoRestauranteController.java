@@ -4,6 +4,7 @@ import com.algaworks.algafood.api.assembler.ProdutoInputDisassembler;
 import com.algaworks.algafood.api.assembler.ProdutoModelAssembler;
 import com.algaworks.algafood.api.model.ProdutoModel;
 import com.algaworks.algafood.api.model.input.ProdutoInput;
+import com.algaworks.algafood.api.openapi.controller.RestauranteProdutoControllerOpenApi;
 import com.algaworks.algafood.domain.model.Produto;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.ProdutoRepository;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RequestMapping("/restaurantes/{restauranteId}/produtos")
 @RestController
-public class ProdutoRestauranteController {
+public class ProdutoRestauranteController implements RestauranteProdutoControllerOpenApi {
 
     @Autowired
     CadastrarProdutoService cadastrarProdutoService;
@@ -71,7 +72,7 @@ public class ProdutoRestauranteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProdutoModel salvar(@PathVariable Long restauranteId,
+    public ProdutoModel adicionar(@PathVariable Long restauranteId,
                                @RequestBody @Valid ProdutoInput produtoInput) {
 
         Restaurante restaurante = cadastratarRestauranteService.findById(restauranteId);

@@ -6,6 +6,7 @@ import com.algaworks.algafood.api.assembler.RestauranteModelAssembler;
 import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.api.model.view.RestauranteView;
+import com.algaworks.algafood.api.openapi.controller.RestauranteControllerOpenApi;
 import com.algaworks.algafood.core.validation.ValidacaoException;
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
@@ -19,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -38,7 +39,7 @@ import java.util.Optional;
 //@CrossOrigin //acesso geral para qualquer url, mas só para este endpoint
 @RequestMapping("/restaurantes")
 @RestController
-public class RestauranteController {
+public class RestauranteController implements RestauranteControllerOpenApi {
 
     @Autowired
     CadastratarRestauranteService cadastratarRestauranteService;
@@ -52,7 +53,6 @@ public class RestauranteController {
     @Autowired
     RestauranteModelAssembler restauranteModelAssembler;
 
-
     @Autowired
     RestauranteInputAssembler restauranteInputAssembler;
 
@@ -60,15 +60,15 @@ public class RestauranteController {
     RestauranteInputDisassembler restauranteInputDisassembler;
 
     @JsonView(RestauranteView.Resumo.class)
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RestauranteModel> listar() {
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
     }
 
     //Projecao com parâmetro...
     @JsonView(RestauranteView.ApenasNomes.class)
-    @GetMapping(params = "projecao=apenas-nome")
-    public List<RestauranteModel> listarResumido() {
+    @GetMapping(params = "projecao=apenas-nome", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<RestauranteModel> listarApenasNomes() {
         return listar();
     }
 
@@ -122,42 +122,42 @@ public class RestauranteController {
         return listar();
     }
 */
-    @GetMapping("/por-taxa-frete")
+    @GetMapping(path = "/por-taxa-frete", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RestauranteModel> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal));
     }
 
-    @GetMapping("/por-nome-e-taxa-frete")
+    @GetMapping(path = "/por-nome-e-taxa-frete", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RestauranteModel> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findWithCriteria(nome, taxaFreteInicial, taxaFreteFinal));
     }
 
-    @GetMapping("/com-frete-gratis")
+    @GetMapping(path = "/com-frete-gratis", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RestauranteModel> restaurantesComFreteGratis(String nome) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findComFreteGratis(nome));
     }
 
-    @GetMapping("/por-nome")
+    @GetMapping(path = "/por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RestauranteModel> restaurantePorNome(String nome, Long cozinhaId) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.consultarPorNome(nome, cozinhaId));
     }
 
-    @GetMapping("/primeiro-por-nome")
+    @GetMapping(path = "/primeiro-por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     public Optional<Restaurante> findFirstRestauranteByName(String nome) {
 
         return restauranteRepository.readFirstRestauranteByNomeContaining(nome);
     }
 
-    @GetMapping("/primeiro")
+    @GetMapping(path = "/primeiro" , produces = MediaType.APPLICATION_JSON_VALUE)
     public Optional<RestauranteModel> buscarPrimeiro() {
         return Optional.of(restauranteModelAssembler.toModel(restauranteRepository.buscarPrimeiro().get()));
     }
 
-    @GetMapping("/top2-por-nome")
+    @GetMapping(path = "/top2-por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RestauranteModel> restaurantesTop2PorNome(String nome) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.streamTop2ByNomeContaining(nome));
@@ -172,7 +172,7 @@ public class RestauranteController {
     }
 
     //Normalmente
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED) // 201
     // Usamos o ? para aceitar qualquer tipo de parâmetro...
     public RestauranteModel adicionar(@RequestBody @Valid RestauranteInput restauranteInput) {
@@ -190,7 +190,7 @@ public class RestauranteController {
     }
 
 
-    @PutMapping("/{restauranteId}")
+    @PutMapping(path = "/{restauranteId}",  produces = MediaType.APPLICATION_JSON_VALUE)
     public RestauranteModel atualizar(@PathVariable Long restauranteId,
                                  @RequestBody @Valid RestauranteInput restauranteInput) {
 
@@ -212,7 +212,7 @@ public class RestauranteController {
     }
 
     // A idea é atualizar somente as propriedades que foram especificadas no corpo da requisição...
-    @PatchMapping("/{restauranteId}") // Vai atender requis HTTP do tipi PATCH...
+    @PatchMapping(path = "/{restauranteId}", produces = MediaType.APPLICATION_JSON_VALUE) // Vai atender requis HTTP do tipi PATCH...
     public RestauranteModel atualizarParcial(@PathVariable Long restauranteId,
                                         @RequestBody Map<String, Object> campos, HttpServletRequest request) {
 

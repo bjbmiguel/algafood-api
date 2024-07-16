@@ -3,8 +3,10 @@ package com.algaworks.algafood.core.openapi;
 
 import com.algaworks.algafood.api.exceptionhanlder.Problem;
 import com.algaworks.algafood.api.model.CozinhaModel;
+import com.algaworks.algafood.api.model.PedidoResumoModel;
 import com.algaworks.algafood.api.openapi.model.CozinhasModelOpenApi;
 import com.algaworks.algafood.api.openapi.model.PageableModelOpenApi;
+import com.algaworks.algafood.api.openapi.model.PedidosResumoModelOpenApi;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
@@ -46,23 +48,30 @@ public class SpringFoxConfig {
                 .globalResponses(HttpMethod.DELETE, globalDeleteResponseMessages())
                 .globalResponses(HttpMethod.POST, globalPostResponseMessages())
                 .globalResponses(HttpMethod.PUT, globalPutResponseMessages())
-                .globalRequestParameters(Collections.singletonList(
-                                new RequestParameterBuilder()
-                                        .name("campos")
-                                        .description("Nomes das propriedades para filtrar na resposta, separados por vírgula")
-                                        .in(ParameterType.QUERY)
-                                        .required(true)
-                                        .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
-                                        .build()))
+//                .globalRequestParameters(Collections.singletonList( // Config de forma global de parâmetros de pes
+//                                new RequestParameterBuilder()
+//                                        .name("campos")
+//                                        .description("Nomes das propriedades para filtrar na resposta, separados por vírgula")
+//                                        .in(ParameterType.QUERY)
+//                                        .required(true)
+//                                        .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
+//                                        .build()))
                 .additionalModels(typeResolver.resolve(Problem.class))
                 .directModelSubstitute(Pageable.class, PageableModelOpenApi.class)
                 .alternateTypeRules(AlternateTypeRules.newRule(
                         typeResolver.resolve(Page.class, CozinhaModel.class),
                         CozinhasModelOpenApi.class))
+                .alternateTypeRules(AlternateTypeRules.newRule(
+                        typeResolver.resolve(Page.class, PedidoResumoModel.class),
+                        PedidosResumoModelOpenApi.class))
                 .ignoredParameterTypes(ServletWebRequest.class)
                 .apiInfo(apiInfo())
                 .tags(new Tag("Cidades", "Gerencia as cidades"),
                         new Tag("Cozinhas", "Gerencia as cozinhas"),
+                        new Tag("Pedidos", "Gerencia os pedidos"),
+                        new Tag("Restaurantes", "Gerencia os restaurantes"),
+                        new Tag("Estados", "Gerencia os estados"),
+                        new Tag("Produtos", "Gerencia os produtos de restaurantes"),
                         new Tag("Formas de pagamento", "Gerencia as formas de pagamento"),
                         new Tag("Grupos", "Gerencia os grupos de usuários"));//Criamos uma tag
     }
