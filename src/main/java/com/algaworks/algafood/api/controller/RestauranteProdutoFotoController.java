@@ -3,6 +3,7 @@ package com.algaworks.algafood.api.controller;
 import com.algaworks.algafood.api.assembler.FotoProdutoModelAssembler;
 import com.algaworks.algafood.api.model.FotoProdutoModel;
 import com.algaworks.algafood.api.model.input.FotoProdutoInput;
+import com.algaworks.algafood.api.openapi.controller.RestauranteProdutoFotoControllerOpenApi;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.FotoProduto;
 import com.algaworks.algafood.domain.model.Produto;
@@ -25,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/restaurantes/{restauranteId}/produtos/{produtoId}/foto")
-public class RestauranteProdutoFotoController {
+public class RestauranteProdutoFotoController implements RestauranteProdutoFotoControllerOpenApi {
 
     @Autowired
     private CadastrarProdutoService cadastroProduto;
@@ -40,20 +41,22 @@ public class RestauranteProdutoFotoController {
     private FotoStorageService fotoStorage;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    FotoProdutoModel buscarRestauranteProdutoFoto(@PathVariable Long restauranteId,
-                                                  @PathVariable Long produtoId) {
+    public FotoProdutoModel buscar(@PathVariable Long restauranteId,
+                                                  @PathVariable Long produtoId){
 
         FotoProduto fotoProduto = catalogoFotoProduto.findFotoByIdProdutoRestaurante(restauranteId, produtoId);
 
         return fotoProdutoModelAssembler.toModel(fotoProduto);
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.ALL_VALUE)
     public ResponseEntity<?> servirFoto(@PathVariable Long restauranteId,
                                                           @PathVariable Long produtoId,
                                                           @RequestHeader(name = "accept") String acceptHeader) throws HttpMediaTypeNotAcceptableException {
         try {
+
             FotoProduto fotoProduto = catalogoFotoProduto.findFotoByIdProdutoRestaurante(restauranteId, produtoId);
+            //System.out.println(fotoProduto.getNomeArquivo());
 
             MediaType mediaTypeFoto = MediaType.parseMediaType(fotoProduto.getContentType());
             List<MediaType> mediaTypesAceitas = MediaType.parseMediaTypes(acceptHeader);
@@ -130,7 +133,7 @@ public class RestauranteProdutoFotoController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void remover(@PathVariable Long restauranteId,
+    public void excluir(@PathVariable Long restauranteId,
                         @PathVariable Long produtoId) {
 
         catalogoFotoProduto.excluir(restauranteId, produtoId);
