@@ -5,6 +5,7 @@ import com.algaworks.algafood.api.assembler.GrupoModelAssembler;
 import com.algaworks.algafood.api.assembler.PermissaoInputDisassembler;
 import com.algaworks.algafood.api.assembler.PermissaoModelAssembler;
 import com.algaworks.algafood.api.model.PermissaoModel;
+import com.algaworks.algafood.api.openapi.controller.GrupoPermissaoControllerOpenApi;
 import com.algaworks.algafood.domain.model.Grupo;
 import com.algaworks.algafood.domain.model.GrupoPermissao;
 import com.algaworks.algafood.domain.model.Permissao;
@@ -13,13 +14,14 @@ import com.algaworks.algafood.domain.service.CadastrarGrupoService;
 import com.algaworks.algafood.domain.service.CadastrarPermissaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/grupos/{grupoId}/permissoes")
-public class GrupoPermissaoController {
+public class GrupoPermissaoController implements GrupoPermissaoControllerOpenApi {
 
     @Autowired
     CadastrarGrupoService cadastrarGrupoService;
@@ -42,7 +44,7 @@ public class GrupoPermissaoController {
     @Autowired
     CadastrarGrupoPermissaoService cadastrarGrupoPermissaoService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PermissaoModel> listar(@PathVariable Long grupoId) {
 
         Grupo grupo = cadastrarGrupoService.findById(grupoId);
@@ -50,7 +52,7 @@ public class GrupoPermissaoController {
         return permissaoModelAssembler.toCollectionModel(grupo.getPermissoes());
     }
 
-    @PutMapping("/{permissaoId}")
+    @PutMapping(path = "/{permissaoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void adicionarPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
 
