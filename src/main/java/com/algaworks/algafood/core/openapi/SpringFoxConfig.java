@@ -64,9 +64,9 @@ public class SpringFoxConfig {
 //                                        .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
 //                                        .build()))
                 .additionalModels(typeResolver.resolve(Problem.class))
-                .ignoredParameterTypes(ServletWebRequest.class,
-                        URL.class, URI.class, URLStreamHandler.class, Resource.class,
-                        File.class, InputStream.class)
+                .ignoredParameterTypes(ServletWebRequest.class,//Para remover da secção schema na documentação...
+                        URL.class, URI.class, URLStreamHandler.class, Resource.class,//Para remover da secção schema na documentação...
+                        File.class, InputStream.class) //Para remover da secção schema na documentação...
                 .directModelSubstitute(Pageable.class, PageableModelOpenApi.class)
                 .alternateTypeRules(AlternateTypeRules.newRule(
                         typeResolver.resolve(Page.class, CozinhaModel.class),
@@ -81,6 +81,7 @@ public class SpringFoxConfig {
                         new Tag("Pedidos", "Gerencia os pedidos"),
                         new Tag("Restaurantes", "Gerencia os restaurantes"),
                         new Tag("Estados", "Gerencia os estados"),
+                        new Tag("Usuários", "Gerencia os usuários"),
                         new Tag("Produtos", "Gerencia os produtos de restaurantes"),
                         new Tag("Formas de pagamento", "Gerencia as formas de pagamento"),
                         new Tag("Grupos", "Gerencia os grupos de usuários"));//Criamos uma tag
