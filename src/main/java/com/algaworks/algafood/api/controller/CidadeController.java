@@ -1,6 +1,7 @@
 package com.algaworks.algafood.api.controller;
 
 
+import com.algaworks.algafood.api.ResourceUriHelper;
 import com.algaworks.algafood.api.assembler.CidadeInputDisassembler;
 import com.algaworks.algafood.api.assembler.CidadeModelAssembler;
 import com.algaworks.algafood.api.openapi.controller.CidadeControllerOpenApi;
@@ -55,6 +56,9 @@ public class CidadeController implements CidadeControllerOpenApi {
             Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInput);
 
             cidade = cadastrarCidadeService.salvar(cidade);
+
+            //Adicionamos o id na criação da URI do novo recurso
+            ResourceUriHelper.addUriInResponseHeader(cidade.getId());
 
             return cidadeModelAssembler.toModel(cidade);
         } catch (EstadoNaoEncontradaException e) {
