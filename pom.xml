@@ -30,6 +30,11 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+		</dependency>
+
 		<!--Para ressolver essa ex => Caused by: com.fasterxml.jackson.databind.exc.InvalidDefinitionException:
 		Java 8 date/time type `java.time.-->
 		<dependency>
