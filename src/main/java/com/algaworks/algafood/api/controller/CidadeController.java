@@ -4,21 +4,22 @@ package com.algaworks.algafood.api.controller;
 import com.algaworks.algafood.api.ResourceUriHelper;
 import com.algaworks.algafood.api.assembler.CidadeInputDisassembler;
 import com.algaworks.algafood.api.assembler.CidadeModelAssembler;
-import com.algaworks.algafood.api.openapi.controller.CidadeControllerOpenApi;
 import com.algaworks.algafood.api.model.CidadeModel;
 import com.algaworks.algafood.api.model.input.CidadeInput;
+import com.algaworks.algafood.api.openapi.controller.CidadeControllerOpenApi;
 import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.service.CadastrarCidadeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 // Definimos a classe como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
 @RequestMapping("/cidades")
@@ -49,13 +50,21 @@ public class CidadeController implements CidadeControllerOpenApi {
 
         var cidadeModel = cidadeModelAssembler.toModel(cidade);
 
-        cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades/1"));
-//		cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades/1", IanaLinkRelations.SELF));
+        cidadeModel.add(linkTo(CidadeController.class)
+                .slash(cidadeModel.getId()).withSelfRel());
 
-//		cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades", IanaLinkRelations.COLLECTION));
-        cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades", "cidades"));
+//		cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades/1"));
 
-        cidadeModel.getEstado().add(Link.of("http://api.algafood.local:8080/estados/1"));
+        cidadeModel.add(linkTo(CidadeController.class)
+                .withRel("cidades"));
+
+//		cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades", "cidades"));
+
+        cidadeModel.getEstado().add(linkTo(EstadoController.class)
+                .slash(cidadeModel.getEstado().getId()).withSelfRel());
+
+//		cidadeModel.getEstado().add(Link.of("http://api.algafood.local:8080/estados/1"));
+
 
         return cidadeModel;
     }
