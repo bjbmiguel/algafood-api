@@ -9,12 +9,17 @@ import com.algaworks.algafood.domain.model.Usuario;
 import com.algaworks.algafood.domain.service.CadastrarRestauranteUsuarioService;
 import com.algaworks.algafood.domain.service.CadastrarUsuarioService;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
+import com.lowagie.text.html.simpleparser.ALink;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequestMapping("/restaurantes/{restauranteId}/responsaveis")
 @RestController
@@ -33,17 +38,23 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
     CadastrarRestauranteUsuarioService cadastrarRestauranteUsuarioService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UsuarioModel> listar(@PathVariable Long restauranteId){
+    public CollectionModel<UsuarioModel> listar(@PathVariable Long restauranteId) {
 
-        Restaurante restaurante = cadastratarRestauranteService.findById(restauranteId);
+        var restaurante = cadastratarRestauranteService.findById(restauranteId);
 
-        return  usuarioModelAssembler.toCollectionModel(restaurante.getUsuarios());
+        var usuarioCollectionModel = usuarioModelAssembler.toCollectionModel(restaurante.getUsuarios());
+
+        usuarioCollectionModel.removeLinks().add(
+                linkTo(methodOn(RestauranteUsuarioController.class).listar(restauranteId)).withSelfRel()
+        );
+
+        return usuarioCollectionModel;
     }
 
     @PutMapping("/{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void adicionarResponsavel(@PathVariable  Long restauranteId,
-                                     @PathVariable  Long usuarioId){
+    public void adicionarResponsavel(@PathVariable Long restauranteId,
+                                     @PathVariable Long usuarioId) {
 
         Restaurante restaurante = cadastratarRestauranteService.findById(restauranteId);
         Usuario usuario = cadastrarUsuarioService.findById(usuarioId);
@@ -55,16 +66,13 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
     @DeleteMapping("/{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removerResponsavel(@PathVariable Long restauranteId, @PathVariable
-    Long usuarioId){
+    Long usuarioId) {
 
         cadastratarRestauranteService.checkIfExistsById(restauranteId);
         RestauranteUsuario restauranteUsuario = cadastrarRestauranteUsuarioService.findById(restauranteId, usuarioId);
 
         cadastratarRestauranteService.removerResponsavel(restauranteUsuario.getRestaurante(), restauranteUsuario.getUsuario());
     }
-
-
-
 
 
 }

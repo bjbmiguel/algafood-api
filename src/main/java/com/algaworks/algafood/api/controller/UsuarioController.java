@@ -9,6 +9,8 @@ import com.algaworks.algafood.api.model.input.UsuarioInput;
 import com.algaworks.algafood.domain.model.Usuario;
 import com.algaworks.algafood.domain.service.CadastrarUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +33,7 @@ public class UsuarioController {
 
 
     @GetMapping // Mapeamos as requ HTTP do tipo GET para este método
-    public List<UsuarioModel> listar() {
+    public CollectionModel<UsuarioModel> listar() {
 
         List<Usuario> todosUsuarios = cadastrarUsuarioService.listar();
 
@@ -40,8 +42,7 @@ public class UsuarioController {
 
     @GetMapping("/{usuarioId}")
     public UsuarioModel buscar(@PathVariable Long usuarioId) {
-        Usuario usuario = cadastrarUsuarioService.findById(usuarioId);
-
+        var usuario = cadastrarUsuarioService.findById(usuarioId);
         return usuarioModelAssembler.toModel(usuario);
     }
 
@@ -57,7 +58,7 @@ public class UsuarioController {
 
     @PutMapping("/{usuarioId}")
     public UsuarioModel atualizar(@PathVariable Long usuarioId,
-                                 @RequestBody @Valid UsuarioInput usuarioInput) {
+                                  @RequestBody @Valid UsuarioInput usuarioInput) {
 
         Usuario usuarioAtual = cadastrarUsuarioService.findById(usuarioId);
 

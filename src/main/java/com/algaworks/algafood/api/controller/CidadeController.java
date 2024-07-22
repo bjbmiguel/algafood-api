@@ -19,9 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 // Definimos a classe como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
 @RequestMapping("/cidades")
 @RestController
@@ -39,46 +36,13 @@ public class CidadeController implements CidadeControllerOpenApi {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE) // Mapeamos as requ HTTP do tipo GET para este método
     public CollectionModel<CidadeModel> listar() {
         var todasCidades = cadastrarCidadeService.listar();
-        var cidadesModel = cidadeModelAssembler.toCollectionModel(todasCidades);
-
-
-        cidadesModel.forEach(cidadeModel -> {
-            cidadeModel.add(linkTo(methodOn(CidadeController.class)
-                    .buscar(cidadeModel.getId())).withSelfRel());
-
-            cidadeModel.add(linkTo(methodOn(CidadeController.class)
-                    .listar()).withRel("cidades"));
-
-            cidadeModel.getEstado().add(linkTo(methodOn(EstadoController.class)
-                    .buscar(cidadeModel.getEstado().getId())).withSelfRel());
-        });
-
-
-        CollectionModel<CidadeModel> cidadesCollectionModel = CollectionModel.of(cidadesModel);
-
-        cidadesCollectionModel.add(linkTo(CidadeController.class).withSelfRel());
-
-        return cidadesCollectionModel;
+        return cidadeModelAssembler.toCollectionModel(todasCidades);
     }
 
     @GetMapping(path = "/{cidadeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CidadeModel buscar(@PathVariable Long cidadeId) {
-
         var cidade = cadastrarCidadeService.hasOrNot(cidadeId);
-
-        var cidadeModel = cidadeModelAssembler.toModel(cidade);
-
-        cidadeModel.add(linkTo(methodOn(CidadeController.class)
-                .buscar(cidadeModel.getId())).withSelfRel());
-
-        cidadeModel.add(linkTo(methodOn(CidadeController.class)
-                .listar()).withRel("cidades"));
-
-
-        cidadeModel.getEstado().add(linkTo(methodOn(EstadoController.class)
-                .buscar(cidadeModel.getEstado().getId())).withSelfRel());
-
-        return cidadeModel;
+        return cidadeModelAssembler.toModel(cidade);
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
