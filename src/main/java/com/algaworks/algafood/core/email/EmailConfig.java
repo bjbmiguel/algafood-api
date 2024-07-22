@@ -17,7 +17,7 @@ public class EmailConfig {
     @Bean
     public EnvioEmailService envioEmailService() {
 
-        return switch (emailProperties.getImpl()) {
+        return switch (emailProperties.getImpl()){
             case FAKE -> new FakeSmtpEnvioEmailService();
             case SMTP -> new SmtpEnvioEmailService();
             case SANDBOX -> new SandBoxEnvioEmailService();

@@ -3,20 +3,15 @@ package com.algaworks.algafood.api.openapi.controller;
 import com.algaworks.algafood.api.exceptionhanlder.Problem;
 import com.algaworks.algafood.api.model.CidadeModel;
 import com.algaworks.algafood.api.model.input.CidadeInput;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import java.util.List;
+import io.swagger.annotations.*;
+import org.springframework.hateoas.CollectionModel;
 
 //Aqui nesta interface só temos código de documentação da API
 @Api(tags = "Cidades") //Tag a ser usada na documentação da API / SpringFox & OpenAPI/Swagger
 public interface CidadeControllerOpenApi {
 
     @ApiOperation("Lista as cidades")
-     List<CidadeModel> listar();
+    CollectionModel<CidadeModel> listar();
 
     @ApiOperation("Busca uma cidade por ID")
     @ApiResponses({

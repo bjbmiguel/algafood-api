@@ -12,14 +12,15 @@ import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.service.CadastrarCidadeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 // Definimos a classe como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
 @RequestMapping("/cidades")
@@ -36,11 +37,28 @@ public class CidadeController implements CidadeControllerOpenApi {
     private CidadeInputDisassembler cidadeInputDisassembler;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE) // Mapeamos as requ HTTP do tipo GET para este método
-    public List<CidadeModel> listar() {
+    public CollectionModel<CidadeModel> listar() {
+        var todasCidades = cadastrarCidadeService.listar();
+        var cidadesModel = cidadeModelAssembler.toCollectionModel(todasCidades);
 
-        List<Cidade> todasCidades = cadastrarCidadeService.listar();
 
-        return cidadeModelAssembler.toCollectionModel(todasCidades);
+        cidadesModel.forEach(cidadeModel -> {
+            cidadeModel.add(linkTo(methodOn(CidadeController.class)
+                    .buscar(cidadeModel.getId())).withSelfRel());
+
+            cidadeModel.add(linkTo(methodOn(CidadeController.class)
+                    .listar()).withRel("cidades"));
+
+            cidadeModel.getEstado().add(linkTo(methodOn(EstadoController.class)
+                    .buscar(cidadeModel.getEstado().getId())).withSelfRel());
+        });
+
+
+        CollectionModel<CidadeModel> cidadesCollectionModel = CollectionModel.of(cidadesModel);
+
+        cidadesCollectionModel.add(linkTo(CidadeController.class).withSelfRel());
+
+        return cidadesCollectionModel;
     }
 
     @GetMapping(path = "/{cidadeId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,21 +68,15 @@ public class CidadeController implements CidadeControllerOpenApi {
 
         var cidadeModel = cidadeModelAssembler.toModel(cidade);
 
-        cidadeModel.add(linkTo(CidadeController.class)
-                .slash(cidadeModel.getId()).withSelfRel());
+        cidadeModel.add(linkTo(methodOn(CidadeController.class)
+                .buscar(cidadeModel.getId())).withSelfRel());
 
-//		cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades/1"));
+        cidadeModel.add(linkTo(methodOn(CidadeController.class)
+                .listar()).withRel("cidades"));
 
-        cidadeModel.add(linkTo(CidadeController.class)
-                .withRel("cidades"));
 
-//		cidadeModel.add(Link.of("http://api.algafood.local:8080/cidades", "cidades"));
-
-        cidadeModel.getEstado().add(linkTo(EstadoController.class)
-                .slash(cidadeModel.getEstado().getId()).withSelfRel());
-
-//		cidadeModel.getEstado().add(Link.of("http://api.algafood.local:8080/estados/1"));
-
+        cidadeModel.getEstado().add(linkTo(methodOn(EstadoController.class)
+                .buscar(cidadeModel.getEstado().getId())).withSelfRel());
 
         return cidadeModel;
     }
