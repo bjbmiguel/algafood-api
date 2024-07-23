@@ -3,6 +3,7 @@ package com.algaworks.algafood.api.controller;
 import com.algaworks.algafood.api.assembler.PedidoInputDisassembler;
 import com.algaworks.algafood.api.assembler.PedidoModelAssembler;
 import com.algaworks.algafood.api.assembler.PedidoResumoModelAssembler;
+import com.algaworks.algafood.api.model.CozinhaModel;
 import com.algaworks.algafood.api.model.PedidoModel;
 import com.algaworks.algafood.api.model.PedidoResumoModel;
 import com.algaworks.algafood.api.model.input.PedidoInput;
@@ -10,6 +11,7 @@ import com.algaworks.algafood.api.openapi.controller.PedidoControllerOpenApi;
 import com.algaworks.algafood.core.data.PageableTranslator;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
+import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Pedido;
 import com.algaworks.algafood.domain.model.Usuario;
 import com.algaworks.algafood.domain.repository.PedidoRepository;
@@ -22,6 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -60,23 +64,22 @@ public class PedidoController implements PedidoControllerOpenApi {
     @Autowired
     CadastrarCidadeService cadastrarCidadeService;
 
+    @Autowired
+    private PagedResourcesAssembler<Pedido> pagedResourcesAssembler;
+
     //Pesquisa usando Specification...
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<PedidoResumoModel> pesquisar(PedidoFilter pedidoFilter, @PageableDefault(size = 20) Pageable pageable) {
+    public PagedModel<PedidoResumoModel> pesquisar(PedidoFilter pedidoFilter, @PageableDefault(size = 20) Pageable pageable) {
 
         pageable = traduzirPageable(pageable);//Traduzimos um pageable mapeando as propriedades do sort...
 
         Page<Pedido> pedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(pedidoFilter), pageable);
 
-        List<PedidoResumoModel> pedidoResumoModels = pedidoResumoModelAssembler.toCollectionModel(pedidosPage.getContent());
 
-        //Instanciamos um Page e colocamos nele um List<PedidoResumoModel> pedidoResumoModels
-        //Content:pedidoResumoModels
-        //Pagination:pageable | size, number of the page...
-        //Total of element in whole list = pedidosPage.getTotalElements()
-        Page<PedidoResumoModel> pedidoResumoModelPage = new PageImpl<>(pedidoResumoModels, pageable, pedidosPage.getTotalElements());
+        PagedModel<PedidoResumoModel> pedidosPagedModel = pagedResourcesAssembler
+                .toModel(pedidosPage, pedidoResumoModelAssembler);
 
-        return pedidoResumoModelPage;
+        return pedidosPagedModel;
     }
 
     /*
