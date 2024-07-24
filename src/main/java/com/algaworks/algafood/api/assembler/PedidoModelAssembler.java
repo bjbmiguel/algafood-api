@@ -3,10 +3,9 @@ package com.algaworks.algafood.api.assembler;
 import com.algaworks.algafood.api.controller.*;
 import com.algaworks.algafood.api.model.PedidoModel;
 import com.algaworks.algafood.domain.model.Pedido;
-import com.algaworks.algafood.domain.model.Produto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.*;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
@@ -50,10 +49,23 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
         });
 
 
+        //Criamos um templateVariables...
+        TemplateVariables pageVariables = new TemplateVariables(
+                new TemplateVariable("page", TemplateVariable.VariableType.REQUEST_PARAM),
+                new TemplateVariable("size", TemplateVariable.VariableType.REQUEST_PARAM),
+                new TemplateVariable("sort", TemplateVariable.VariableType.REQUEST_PARAM));
 
-        //pedidoModel.add(linkTo(methodOn(PedidoController.class)
-          //      .pesquisar(null, null)).withRel("pedidos"));
-        pedidoModel.add(linkTo(PedidoController.class).withRel("pedidos"));
+        TemplateVariables filtroVariables = new TemplateVariables(
+                new TemplateVariable("clienteId", TemplateVariable.VariableType.REQUEST_PARAM),
+                new TemplateVariable("restauranteId", TemplateVariable.VariableType.REQUEST_PARAM),
+                new TemplateVariable("dataCriacaoInicio", TemplateVariable.VariableType.REQUEST_PARAM),
+                new TemplateVariable("dataCriacaoFim", TemplateVariable.VariableType.REQUEST_PARAM));
+
+        //Criamos a uri de pedidos...
+        var pedidosUrl = linkTo(PedidoController.class).toUri().toString();
+
+        pedidoModel.add(Link.of(UriTemplate.of(pedidosUrl, pageVariables.concat(filtroVariables)), "pedidos"));
+
         return pedidoModel;
     }
 

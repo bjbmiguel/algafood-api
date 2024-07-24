@@ -8,6 +8,7 @@ import com.algaworks.algafood.api.model.PedidoModel;
 import com.algaworks.algafood.api.model.PedidoResumoModel;
 import com.algaworks.algafood.api.model.input.PedidoInput;
 import com.algaworks.algafood.api.openapi.controller.PedidoControllerOpenApi;
+import com.algaworks.algafood.core.data.PageWrapper;
 import com.algaworks.algafood.core.data.PageableTranslator;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -71,10 +72,11 @@ public class PedidoController implements PedidoControllerOpenApi {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<PedidoResumoModel> pesquisar(PedidoFilter pedidoFilter, @PageableDefault(size = 20) Pageable pageable) {
 
-        pageable = traduzirPageable(pageable);//Traduzimos um pageable mapeando as propriedades do sort...
+       var  pageableTraduzido = traduzirPageable(pageable);//Traduzimos um pageable mapeando as propriedades do sort...
 
-        Page<Pedido> pedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(pedidoFilter), pageable);
+        Page<Pedido> pedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(pedidoFilter), pageableTraduzido);
 
+        pedidosPage = new PageWrapper<>(pedidosPage, pageable);
 
         PagedModel<PedidoResumoModel> pedidosPagedModel = pagedResourcesAssembler
                 .toModel(pedidosPage, pedidoResumoModelAssembler);
@@ -147,12 +149,26 @@ public class PedidoController implements PedidoControllerOpenApi {
     }
 
     private Pageable traduzirPageable(Pageable apiPageable) {
+
+        /*
         var mapeamento = ImmutableMap.of(
                 "codigo", "codigo",
                 "restaurante.nome", "restaurante.nome",
                 "nomeCliente", "cliente.nome",
-                "valorTotal", "valorTotal"
+                "valorTotal", "valorTotal",
+                "taxaFrete", "taxaFrete"
         );
+
+         */
+
+        ImmutableMap<String, String> mapeamento = ImmutableMap.<String, String>builder()
+                .put("codigo", "codigo")
+                .put("nomerestaurante", "restaurante.nome")
+                .put("nomeCliente", "cliente.nome")
+                .put("valorTotal", "valorTotal")
+                .put("taxaFrete", "taxaFrete")
+                .put("subtotal", "subtotal")
+                .build();
 
         return PageableTranslator.translate(apiPageable, mapeamento);
     }
