@@ -1,8 +1,8 @@
 package com.algaworks.algafood.api.controller;
 
-import com.algaworks.algafood.api.assembler.RestauranteInputAssembler;
-import com.algaworks.algafood.api.assembler.RestauranteInputDisassembler;
-import com.algaworks.algafood.api.assembler.RestauranteModelAssembler;
+import com.algaworks.algafood.api.assembler.*;
+import com.algaworks.algafood.api.model.RestauranteApenasNomeModel;
+import com.algaworks.algafood.api.model.RestauranteBasicoModel;
 import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.api.model.view.RestauranteView;
@@ -19,8 +19,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
@@ -59,17 +61,24 @@ public class RestauranteController implements RestauranteControllerOpenApi {
     @Autowired
     RestauranteInputDisassembler restauranteInputDisassembler;
 
-    @JsonView(RestauranteView.Resumo.class)
+    @Autowired
+    private RestauranteBasicoModelAssembler restauranteBasicoModelAssembler;
+
+    @Autowired
+    private RestauranteApenasNomeModelAssembler restauranteApenasNomeModelAssembler;
+
+
+    //@JsonView(RestauranteView.Resumo.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> listar() {
-        return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
+    public CollectionModel<RestauranteBasicoModel> listar() {
+        return restauranteBasicoModelAssembler.toCollectionModel(restauranteRepository.findAll());
     }
 
     //Projecao com parâmetro...
-    @JsonView(RestauranteView.ApenasNomes.class)
+    //@JsonView(RestauranteView.ApenasNomes.class)
     @GetMapping(params = "projecao=apenas-nome", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> listarApenasNomes() {
-        return listar();
+    public  CollectionModel<RestauranteApenasNomeModel> listarApenasNomes() {
+        return restauranteApenasNomeModelAssembler.toCollectionModel(restauranteRepository.findAll());
     }
 
 
@@ -123,25 +132,25 @@ public class RestauranteController implements RestauranteControllerOpenApi {
     }
 */
     @GetMapping(path = "/por-taxa-frete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
+    public CollectionModel<RestauranteModel> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal));
     }
 
     @GetMapping(path = "/por-nome-e-taxa-frete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
+    public CollectionModel<RestauranteModel> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findWithCriteria(nome, taxaFreteInicial, taxaFreteFinal));
     }
 
     @GetMapping(path = "/com-frete-gratis", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> restaurantesComFreteGratis(String nome) {
+    public CollectionModel<RestauranteModel> restaurantesComFreteGratis(String nome) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findComFreteGratis(nome));
     }
 
     @GetMapping(path = "/por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> restaurantePorNome(String nome, Long cozinhaId) {
+    public CollectionModel<RestauranteModel> restaurantePorNome(String nome, Long cozinhaId) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.consultarPorNome(nome, cozinhaId));
     }
@@ -158,8 +167,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
     }
 
     @GetMapping(path = "/top2-por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<RestauranteModel> restaurantesTop2PorNome(String nome) {
-
+    public CollectionModel<RestauranteModel> restaurantesTop2PorNome(String nome) {
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.streamTop2ByNomeContaining(nome));
     }
 
@@ -281,27 +289,33 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @PutMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void ativar(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void>  ativar(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.ativar(restauranteId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void inativar(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void>  inativar(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.inativar(restauranteId);
+        return ResponseEntity.noContent().build();
     }
 
 
     @PutMapping("/{restauranteId}/fechamento") //Modelando uma regra de negócio como um recurso
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void fechar(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void> fechar(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.fechar(restauranteId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{restauranteId}/abrir") //Modelando uma regra de negócio como um recurso
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void abrir(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void> abrir(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.abrir(restauranteId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/ativacoes")

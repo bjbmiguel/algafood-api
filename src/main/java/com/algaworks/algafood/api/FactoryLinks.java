@@ -29,6 +29,48 @@ public class FactoryLinks {//Na aula foi criada a class AlgaLinks
                 PAGINACAO_VARIABLES.concat(filtroVariables)), "pedidos");
     }
 
+    public Link linkToAtivarRestaurante(Long restauranteId, String rel){
+        return linkTo(methodOn(RestauranteController.class).ativar(restauranteId)).withRel(rel);
+    }
+
+    public Link linkToInativarRestaurante(Long restauranteId, String rel){
+        return linkTo(methodOn(RestauranteController.class).inativar(restauranteId)).withRel(rel);
+    }
+
+    public Link linkToAbrirRestaurante(Long restauranteId, String rel){
+        return linkTo(methodOn(RestauranteController.class).abrir(restauranteId)).withRel(rel);
+    }
+
+    public Link linkToFecharRestaurante(Long restauranteId, String rel){
+        return linkTo(methodOn(RestauranteController.class).fechar(restauranteId)).withRel(rel);
+    }
+
+    public Link linkToUsuarios() {
+        return linkToUsuarios(IanaLinkRelations.SELF.value());
+    }
+
+    public Link linkToRestaurantes(String rel) {
+        return linkTo(RestauranteController.class).withRel(rel);
+    }
+
+    public Link linkToRestaurantes() {
+        return linkToRestaurantes(IanaLinkRelations.SELF.value());
+    }
+
+    public Link linkToRestauranteFormasPagamento(Long restauranteId, String rel) {
+        return linkTo(methodOn(RestauranteFormaPagamentoController.class)
+                .listar(restauranteId)).withRel(rel);
+    }
+
+    public Link linkToCozinha(Long cozinhaId, String rel) {
+        return linkTo(methodOn(CozinhaController.class)
+                .buscar(cozinhaId)).withRel(rel);
+    }
+
+    public Link linkToCozinha(Long cozinhaId) {
+        return linkToCozinha(cozinhaId, IanaLinkRelations.SELF.value());
+    }
+
     public Link linkToConfirmacaoPedido(String codigoPedido, String rel) {
         return linkTo(methodOn(FluxoPedidoController.class)
                 .confirmar(codigoPedido)).withRel(rel);

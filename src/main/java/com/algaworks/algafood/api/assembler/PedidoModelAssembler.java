@@ -32,15 +32,17 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
 
         pedidoModel.add(factoryLinks.linkToPedidos());
 
-        //Adicionando links
+        //Adicionando links de forma condicional..
         if (pedido.podeSerConfirmado()) {
             pedidoModel.add(factoryLinks.linkToConfirmacaoPedido(pedido.getCodigo(), "confirmar"));
         }
 
+        //Adicionando links de forma condicional..
         if (pedido.podeSerCancelado()) {
             pedidoModel.add(factoryLinks.linkToCancelamentoPedido(pedido.getCodigo(), "cancelar"));
         }
 
+        //Adicionando links de forma condicional..
         if (pedido.podeSerEntregue()) {
             pedidoModel.add(factoryLinks.linkToEntregaPedido(pedido.getCodigo(), "entregar"));
         }
