@@ -30,30 +30,36 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
         var pedidoModel = createModelWithId(pedido.getCodigo(), pedido);
         modelMapper.map(pedido, pedidoModel);
 
-        //Adicionamos link na representação do recurso pedido em restaurante
-        pedidoModel.getRestaurante().add(linkTo(methodOn(RestauranteController.class)
-                .buscar(pedido.getRestaurante().getId())).withSelfRel());
-
-        pedidoModel.getCliente().add(linkTo(methodOn(UsuarioController.class)
-                .buscar(pedido.getCliente().getId())).withSelfRel());
-
-        pedidoModel.getFormaPagamento().add(linkTo(methodOn(FormaPagamentoController.class)
-                .buscar(pedido.getFormaPagamento().getId(), null)).withSelfRel());
-
-
-        pedidoModel.getEndereco().getCidade().add(linkTo(methodOn(CidadeController.class)
-                .buscar(pedido.getEndereco().getCidade().getId())).withSelfRel());
-
-        //Adicionando link em coleção...
-        pedidoModel.getItens().forEach(item -> {
-            //ItemPedido precisa ser um representation model...
-            item.add(linkTo(methodOn(ProdutoRestauranteController.class)
-                    .buscar(pedidoModel.getRestaurante().getId(), item.getProdutoId()))
-                    .withRel("produto"));
-        });
-
-
         pedidoModel.add(factoryLinks.linkToPedidos());
+
+        //Adicionando links
+        if (pedido.podeSerConfirmado()) {
+            pedidoModel.add(factoryLinks.linkToConfirmacaoPedido(pedido.getCodigo(), "confirmar"));
+        }
+
+        if (pedido.podeSerCancelado()) {
+            pedidoModel.add(factoryLinks.linkToCancelamentoPedido(pedido.getCodigo(), "cancelar"));
+        }
+
+        if (pedido.podeSerEntregue()) {
+            pedidoModel.add(factoryLinks.linkToEntregaPedido(pedido.getCodigo(), "entregar"));
+        }
+        pedidoModel.getRestaurante().add(
+                factoryLinks.linkToRestaurante(pedido.getRestaurante().getId()));
+
+        pedidoModel.getCliente().add(
+                factoryLinks.linkToUsuario(pedido.getCliente().getId()));
+
+        pedidoModel.getFormaPagamento().add(
+                factoryLinks.linkToFormaPagamento(pedido.getFormaPagamento().getId()));
+
+        pedidoModel.getEndereco().getCidade().add(
+                factoryLinks.linkToCidade(pedido.getEndereco().getCidade().getId()));
+
+        pedidoModel.getItens().forEach(item -> {
+            item.add(factoryLinks.linkToProduto(
+                    pedidoModel.getRestaurante().getId(), item.getProdutoId(), "produto"));
+        });
 
         return pedidoModel;
     }

@@ -75,6 +75,17 @@ public class Pedido extends AbstractAggregateRoot<Pedido> {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL) //CascadeTypeAll = P/cadastrar os itens do pedido...
     private List<ItemPedido> itens = new ArrayList<>();
 
+    public boolean podeSerConfirmado() {
+        return getStatus().podeAlterarPara(StatusPedido.CONFIRMADO);
+    }
+
+    public boolean podeSerEntregue() {
+        return getStatus().podeAlterarPara(StatusPedido.ENTREGUE);
+    }
+
+    public boolean podeSerCancelado() {
+        return getStatus().podeAlterarPara(StatusPedido.CANCELADO);
+    }
 
     public void calcularValorTotal() {
         this.getItens().forEach(ItemPedido::calcularPrecoTotal);
