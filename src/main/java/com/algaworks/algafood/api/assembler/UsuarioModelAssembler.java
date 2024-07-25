@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.assembler;
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.controller.UsuarioController;
 import com.algaworks.algafood.api.controller.UsuarioGrupoController;
 import com.algaworks.algafood.api.model.UsuarioModel;
@@ -19,6 +20,10 @@ public class UsuarioModelAssembler extends RepresentationModelAssemblerSupport<U
     @Autowired
     private ModelMapperConfig mapperConfig;
 
+    @Autowired
+    FactoryLinks links;
+
+
     public UsuarioModelAssembler() {
         super(UsuarioController.class, UsuarioModel.class);
     }
@@ -28,11 +33,9 @@ public class UsuarioModelAssembler extends RepresentationModelAssemblerSupport<U
         var usuarioModel= createModelWithId(usuario.getId(), usuario);
         mapperConfig.modelMapper().map(usuario, usuarioModel);
 
-        usuarioModel.add(linkTo(methodOn(UsuarioController.class)
-                .listar()).withRel("usuarios"));
+        usuarioModel.add(links.linkToUsuarios("usuarios"));
 
-        usuarioModel.add(linkTo(methodOn(UsuarioGrupoController.class)
-                .listar(usuario.getId())).withRel("grupos-usuario"));
+        usuarioModel.add(links.linkToGruposUsuario(usuario.getId(), "grupos-usuario"));
 
         return usuarioModel;
     }

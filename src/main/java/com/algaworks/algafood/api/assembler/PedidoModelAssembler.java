@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.assembler;
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.controller.*;
 import com.algaworks.algafood.api.model.PedidoModel;
 import com.algaworks.algafood.domain.model.Pedido;
@@ -17,6 +18,9 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    FactoryLinks factoryLinks;
 
     public PedidoModelAssembler() {
         super(PedidoController.class, PedidoModel.class);
@@ -49,22 +53,7 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
         });
 
 
-        //Criamos um templateVariables...
-        TemplateVariables pageVariables = new TemplateVariables(
-                new TemplateVariable("page", TemplateVariable.VariableType.REQUEST_PARAM),
-                new TemplateVariable("size", TemplateVariable.VariableType.REQUEST_PARAM),
-                new TemplateVariable("sort", TemplateVariable.VariableType.REQUEST_PARAM));
-
-        TemplateVariables filtroVariables = new TemplateVariables(
-                new TemplateVariable("clienteId", TemplateVariable.VariableType.REQUEST_PARAM),
-                new TemplateVariable("restauranteId", TemplateVariable.VariableType.REQUEST_PARAM),
-                new TemplateVariable("dataCriacaoInicio", TemplateVariable.VariableType.REQUEST_PARAM),
-                new TemplateVariable("dataCriacaoFim", TemplateVariable.VariableType.REQUEST_PARAM));
-
-        //Criamos a uri de pedidos...
-        var pedidosUrl = linkTo(PedidoController.class).toUri().toString();
-
-        pedidoModel.add(Link.of(UriTemplate.of(pedidosUrl, pageVariables.concat(filtroVariables)), "pedidos"));
+        pedidoModel.add(factoryLinks.linkToPedidos());
 
         return pedidoModel;
     }

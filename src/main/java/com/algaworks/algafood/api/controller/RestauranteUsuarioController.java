@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.controller;
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.assembler.UsuarioModelAssembler;
 import com.algaworks.algafood.api.model.UsuarioModel;
 import com.algaworks.algafood.api.openapi.controller.RestauranteUsuarioResponsavelControllerOpenApi;
@@ -37,6 +38,9 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
     @Autowired
     CadastrarRestauranteUsuarioService cadastrarRestauranteUsuarioService;
 
+    @Autowired
+    FactoryLinks links;
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<UsuarioModel> listar(@PathVariable Long restauranteId) {
 
@@ -44,9 +48,7 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
 
         var usuarioCollectionModel = usuarioModelAssembler.toCollectionModel(restaurante.getUsuarios());
 
-        usuarioCollectionModel.removeLinks().add(
-                linkTo(methodOn(RestauranteUsuarioController.class).listar(restauranteId)).withSelfRel()
-        );
+        usuarioCollectionModel.removeLinks().add(links.linkToResponsaveisRestaurante(restauranteId));
 
         return usuarioCollectionModel;
     }

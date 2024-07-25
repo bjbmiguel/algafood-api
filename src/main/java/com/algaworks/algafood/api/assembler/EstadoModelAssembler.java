@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.assembler;
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.controller.EstadoController;
 import com.algaworks.algafood.api.model.EstadoModel;
 import com.algaworks.algafood.domain.model.Estado;
@@ -16,6 +17,10 @@ public class EstadoModelAssembler extends RepresentationModelAssemblerSupport<Es
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private FactoryLinks links;
+
     public EstadoModelAssembler() {
         super(EstadoController.class, EstadoModel.class);
     }
@@ -25,7 +30,8 @@ public class EstadoModelAssembler extends RepresentationModelAssemblerSupport<Es
         EstadoModel estadoModel = createModelWithId(estado.getId(), estado);
         modelMapper.map(estado, estadoModel);
 
-        estadoModel.add(linkTo(EstadoController.class).withRel("estados"));
+
+        estadoModel.add(links.linkToEstados("estados"));
 
         return estadoModel;
     }

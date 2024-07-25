@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.controller.RestauranteController;
 import com.algaworks.algafood.core.modelmapper.ModelMapperConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,10 @@ public class RestauranteModelAssembler extends RepresentationModelAssemblerSuppo
 
     @Autowired
     private ModelMapperConfig mapperConfig;
+
+
+    @Autowired
+    private FactoryLinks links;
 
     public RestauranteModelAssembler() {
         super(RestauranteController.class, RestauranteModel.class);
