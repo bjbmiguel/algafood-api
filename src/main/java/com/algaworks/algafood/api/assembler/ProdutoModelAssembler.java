@@ -26,11 +26,13 @@ public class ProdutoModelAssembler extends RepresentationModelAssemblerSupport<P
     //Recurso único
     public ProdutoModel toModel(Produto produto) {
         //Criamos um object Model com self link... o método createModelWithId recebe um varArg (...)
+        //api.algafood.local:8080/restaurantes/1/produtos/1
         var  produtoModel = createModelWithId(produto.getId(), produto, produto.getRestaurante().getId());
 
         mapperConfig.modelMapper().map(produto, produtoModel);
 
         produtoModel.add(links.linkToProduto(produto.getRestauranteId(), null, "produtos"));
+        produtoModel.add(links.linkToFotoProduto(produto.getRestauranteId(), produto.getId(), "foto"));
 
         return produtoModel;
     }

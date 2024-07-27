@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.controller;
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.assembler.GrupoInputDisassembler;
 import com.algaworks.algafood.api.assembler.GrupoModelAssembler;
 import com.algaworks.algafood.api.assembler.PermissaoInputDisassembler;
@@ -13,8 +14,10 @@ import com.algaworks.algafood.domain.service.CadastrarGrupoPermissaoService;
 import com.algaworks.algafood.domain.service.CadastrarGrupoService;
 import com.algaworks.algafood.domain.service.CadastrarPermissaoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,34 +47,52 @@ public class GrupoPermissaoController implements GrupoPermissaoControllerOpenApi
     @Autowired
     CadastrarGrupoPermissaoService cadastrarGrupoPermissaoService;
 
+    @Autowired
+    FactoryLinks links;
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<PermissaoModel> listar(@PathVariable Long grupoId) {
+    public CollectionModel<PermissaoModel> listar(@PathVariable Long grupoId) {
 
         Grupo grupo = cadastrarGrupoService.findById(grupoId);
 
-        return permissaoModelAssembler.toCollectionModel(grupo.getPermissoes());
+
+        CollectionModel<PermissaoModel> permissoesModel
+                = permissaoModelAssembler.toCollectionModel(grupo.getPermissoes())
+                .removeLinks()
+                .add(links.linkToGrupoPermissoes(grupoId))
+                .add(links.linkToGrupoPermissaoAssociacao(grupoId, "associar"));
+
+        permissoesModel.getContent().forEach(permissaoModel -> {
+            permissaoModel.add(links.linkToGrupoPermissaoDesassociacao(
+                    grupoId, permissaoModel.getId(), "desassociar"));
+        });
+
+        return permissoesModel;
     }
 
     @PutMapping(path = "/{permissaoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void adicionarPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
+    public ResponseEntity<Void> adicionarPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
 
         Grupo grupo = cadastrarGrupoService.findById(grupoId);
         Permissao permissao = cadastrarPermissaoService.findById(permissaoId);
 
         cadastrarGrupoService.adicionarPermissao(grupo, permissao);
 
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{permissaoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removerPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
+    public ResponseEntity<Void> removerPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
 
         cadastrarGrupoService.checkIfExistById(grupoId);
 
         GrupoPermissao grupoPermissao = cadastrarGrupoPermissaoService.findById(grupoId, permissaoId);
 
         cadastrarGrupoService.removerPermissao(grupoPermissao.getGrupo(), grupoPermissao.getPermissao());
+
+        return ResponseEntity.noContent().build();
 
     }
 }

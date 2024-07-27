@@ -8,6 +8,7 @@ import com.algaworks.algafood.api.model.input.GrupoInput;
 import com.algaworks.algafood.domain.model.Grupo;
 import com.algaworks.algafood.domain.service.CadastrarGrupoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class GrupoController implements GrupoControllerOpenApi {
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE) // Mapeamos as requ HTTP do tipo GET para este método
-    public List<GrupoModel> listar() {
+    public CollectionModel<GrupoModel> listar() {
 
         List<Grupo> todosGrupos = cadastrarGrupoService.listar();
 

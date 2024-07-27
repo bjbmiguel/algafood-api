@@ -4,13 +4,14 @@ import com.algaworks.algafood.api.exceptionhanlder.Problem;
 import com.algaworks.algafood.api.model.GrupoModel;
 import com.algaworks.algafood.api.model.input.GrupoInput;
 import io.swagger.annotations.*;
+import org.springframework.hateoas.CollectionModel;
 
 import java.util.List;
 
 @Api(tags = "Grupos")
 public interface GrupoControllerOpenApi {
     @ApiOperation("Lista os grupos")
-     List<GrupoModel> listar();
+    CollectionModel<GrupoModel> listar();
 
     @ApiOperation("Busca um grupo por ID")
     @ApiResponses({
