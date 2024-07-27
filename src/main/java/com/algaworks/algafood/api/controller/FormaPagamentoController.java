@@ -9,6 +9,7 @@ import com.algaworks.algafood.domain.model.FormaPagamento;
 import com.algaworks.algafood.domain.repository.FormaDePagamentoRepository;
 import com.algaworks.algafood.domain.service.CadastrarFormaPagamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,7 +38,7 @@ public class FormaPagamentoController implements FormaPagamentoControllerOpenApi
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FormaPagamentoModel>> listar(ServletWebRequest request) {
+    public ResponseEntity<CollectionModel<FormaPagamentoModel>> listar(ServletWebRequest request) {
 
         ShallowEtagHeaderFilter.disableContentCaching(request.getRequest());
 
@@ -55,7 +56,7 @@ public class FormaPagamentoController implements FormaPagamentoControllerOpenApi
 
         List<FormaPagamento> todasFormasPagamentos = formaDePagamentoRepository.findAll();
 
-        List<FormaPagamentoModel> formasPagamentosModel = formaDePagamentoModelAssembler
+        CollectionModel<FormaPagamentoModel> formasPagamentosModel = formaDePagamentoModelAssembler
                 .toCollectionModel(todasFormasPagamentos);
 
         return ResponseEntity.ok()

@@ -30,7 +30,7 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
         var pedidoModel = createModelWithId(pedido.getCodigo(), pedido);
         modelMapper.map(pedido, pedidoModel);
 
-        pedidoModel.add(factoryLinks.linkToPedidos());
+        pedidoModel.add(factoryLinks.linkToPedidos("pedidos"));
 
         //Adicionando links de forma condicional..
         if (pedido.podeSerConfirmado()) {

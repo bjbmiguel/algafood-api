@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.controller;
 
+import com.algaworks.algafood.api.FactoryLinks;
 import com.algaworks.algafood.api.assembler.ProdutoInputDisassembler;
 import com.algaworks.algafood.api.assembler.ProdutoModelAssembler;
 import com.algaworks.algafood.api.model.ProdutoModel;
@@ -11,11 +12,13 @@ import com.algaworks.algafood.domain.repository.ProdutoRepository;
 import com.algaworks.algafood.domain.service.CadastrarProdutoService;
 import com.algaworks.algafood.domain.service.CadastratarRestauranteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RequestMapping("/restaurantes/{restauranteId}/produtos")
 @RestController
@@ -36,20 +39,25 @@ public class ProdutoRestauranteController implements RestauranteProdutoControlle
     @Autowired
     ProdutoInputDisassembler produtoInputDisassembler;
 
+    @Autowired
+    FactoryLinks links;
+
     @GetMapping
-    public List<ProdutoModel> listar(@PathVariable Long restauranteId,
-                                     @RequestParam(required = false) boolean incluirInativos) {
+    public CollectionModel<ProdutoModel> listar(@PathVariable Long restauranteId,
+                                                @RequestParam(required = false) Boolean incluirInativos) {
+
         Restaurante restaurante = cadastratarRestauranteService.findById(restauranteId);
 
         List<Produto> todosProdutos = null;
 
-        if (incluirInativos) {
+        if (Objects.nonNull(incluirInativos) && incluirInativos) {
             todosProdutos = produtoRepository.findTodosProdutosByRestaurante(restaurante);
         } else {
             todosProdutos = produtoRepository.findTodosProdutosAtivosByRestaurante(restaurante);
         }
 
-        return produtoModelAssembler.toCollectionModel(todosProdutos);
+          return produtoModelAssembler.toCollectionModel(todosProdutos)
+                .add(links.linkToProdutos(restauranteId));
     }
 
 

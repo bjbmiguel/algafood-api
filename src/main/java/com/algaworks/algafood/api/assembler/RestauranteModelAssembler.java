@@ -10,6 +10,8 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 public class RestauranteModelAssembler extends RepresentationModelAssemblerSupport<Restaurante, RestauranteModel> {
 
@@ -31,34 +33,41 @@ public class RestauranteModelAssembler extends RepresentationModelAssemblerSuppo
 
         restauranteModel.add(links.linkToRestaurantes("restaurantes"));
 
-        if(restaurante.podeAtivar()){
+        if (restaurante.podeAtivar()) {
 
-            restauranteModel.add(links.linkToAtivarRestaurante(restauranteModel.getId(), "ativar"));
+            restauranteModel.add(links.linkToRestauranteAtivacao(restauranteModel.getId(), "ativar"));
         }
 
-        if(restaurante.podeInativar()){
-            restauranteModel.add(links.linkToInativarRestaurante(restauranteModel.getId(), "inativar"));
+        if (restaurante.podeInativar()) {
+            restauranteModel.add(links.linkToRestauranteInativacao(restauranteModel.getId(), "inativar"));
         }
 
-        if(restaurante.podeAbrir()){
+        if (restaurante.podeAbrir()) {
 
-            restauranteModel.add(links.linkToAbrirRestaurante(restauranteModel.getId(), "abrir"));
+            restauranteModel.add(links.linkToRestauranteAbertura(restauranteModel.getId(), "abrir"));
         }
 
-        if(restaurante.podeFechar()){
-            restauranteModel.add(links.linkToFecharRestaurante(restauranteModel.getId(), "fechar"));
+        if (restaurante.podeFechar()) {
+            restauranteModel.add(links.linkToRestauranteFechamento(restauranteModel.getId(), "fechar"));
         }
 
         restauranteModel.getCozinha().add(
                 links.linkToCozinha(restaurante.getCozinha().getId()));
 
-        restauranteModel.getEndereco().getCidade().add(
-                links.linkToCidade(restaurante.getEndereco().getCidade().getId()));
+        if (Objects.nonNull(restauranteModel.getEndereco()) &&
+                Objects.nonNull(restauranteModel.getEndereco().getCidade())) {
+
+            restauranteModel.getEndereco().getCidade().add(
+                    links.linkToCidade(restaurante.getEndereco().getCidade().getId()));
+
+        }
+
+
 
         restauranteModel.add(links.linkToRestauranteFormasPagamento(restaurante.getId(),
                 "formas-pagamento"));
 
-        restauranteModel.add(links.linkToResponsaveisRestaurante(restaurante.getId(),
+        restauranteModel.add(links.linkToUsuario(restaurante.getId(),
                 "responsaveis"));
 
 
