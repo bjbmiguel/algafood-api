@@ -5,19 +5,17 @@ import com.algaworks.algafood.api.model.RestauranteApenasNomeModel;
 import com.algaworks.algafood.api.model.RestauranteBasicoModel;
 import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.api.model.input.RestauranteInput;
-import com.algaworks.algafood.api.model.view.RestauranteView;
-import com.algaworks.algafood.api.openapi.model.RestauranteBasicoModelOpenApi;
-import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.*;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
 @Api(tags = "Restaurantes") //Descrição do modelo
 public interface RestauranteControllerOpenApi {
 
-    @ApiOperation(value = "Lista restaurantes", response = RestauranteBasicoModelOpenApi.class)
+    @ApiOperation(value = "Lista restaurantes")
     @ApiImplicitParams({
             @ApiImplicitParam(value = "Nome da projeção de pedidos", allowableValues = "apenas-nome",
                     name = "projecao", paramType = "query", type = "string")
@@ -26,6 +24,7 @@ public interface RestauranteControllerOpenApi {
     //@JsonView(RestauranteView.Resumo.class)
     CollectionModel<RestauranteBasicoModel> listar();
 
+    @ApiIgnore
     @ApiOperation(value = "Lista restaurantes", hidden = true)
     CollectionModel<RestauranteApenasNomeModel> listarApenasNomes();
 
