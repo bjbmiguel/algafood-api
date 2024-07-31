@@ -18,7 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/usuarios/{usuarioId}/grupos")
+@RequestMapping("/v1/usuarios/{usuarioId}/grupos")
 @RestController
 public class UsuarioGrupoController implements UsuarioGrupoControllerOpenApi {
 

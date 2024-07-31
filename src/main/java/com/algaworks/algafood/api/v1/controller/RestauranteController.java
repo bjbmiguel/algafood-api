@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 
 //@CrossOrigin //acesso geral para qualquer url, mas só para este endpoint
-@RequestMapping("/restaurantes")
+@RequestMapping("/v1/restaurantes")
 @RestController
 public class RestauranteController implements RestauranteControllerOpenApi {
 

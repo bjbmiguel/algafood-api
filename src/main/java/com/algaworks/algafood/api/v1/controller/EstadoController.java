@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-@RequestMapping("/estados")
+@RequestMapping("/v1/estados")
 @RestController
 // Definimos a classe Estado como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
 public class EstadoController implements EstadoControllerOpenApi {

@@ -20,7 +20,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 
-@RequestMapping("/restaurantes/{restauranteId}/produtos")
+@RequestMapping("/v1/restaurantes/{restauranteId}/produtos")
 @RestController
 public class ProdutoRestauranteController implements RestauranteProdutoControllerOpenApi {
 

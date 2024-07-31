@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @RestController
 // Esta anotação define a classe num controlador de modos que ela possa lidar com requisições HTTP e devolver respostas...
-@RequestMapping("/cozinhas")
+@RequestMapping("/v1/cozinhas")
 // Esta anotação é usada para mapear as req HTTP feitas neste controller, ou seja, todas as reqs. /cozinhas vão cair aqui...
 public class CozinhaController implements CozinhaControllerOpenApi {
 

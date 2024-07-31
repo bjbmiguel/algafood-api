@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-@RequestMapping(path = "/grupos")
+@RequestMapping(path = "/v1/grupos")
 @RestController
 // Definimos a classe Estado como um controlador para lidar com req HTTP RESTFul que retornam resp em form XML e JSON
 public class GrupoController implements GrupoControllerOpenApi {

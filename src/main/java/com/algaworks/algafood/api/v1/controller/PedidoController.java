@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@RequestMapping("/pedidos")
+@RequestMapping("/v1/pedidos")
 @RestController
 public class PedidoController implements PedidoControllerOpenApi {
 

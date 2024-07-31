@@ -23,7 +23,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@RequestMapping("/formas-de-pagamentos")
+@RequestMapping("/v1/formas-de-pagamentos")
 @RestController
 public class FormaPagamentoController implements FormaPagamentoControllerOpenApi {
 
