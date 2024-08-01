@@ -4,6 +4,10 @@ package com.algaworks.algafood.core.openapi;
 import com.algaworks.algafood.api.exceptionhanlder.Problem;
 import com.algaworks.algafood.api.v1.model.*;
 import com.algaworks.algafood.api.v1.openapi.model.*;
+import com.algaworks.algafood.api.v2.model.CidadeModelV2;
+import com.algaworks.algafood.api.v2.model.CozinhaModelV2;
+import com.algaworks.algafood.api.v2.openapi.model.CidadesModelV2OpenApi;
+import com.algaworks.algafood.api.v2.openapi.model.CozinhasModelV2OpenApi;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
@@ -44,9 +48,10 @@ public class SpringFoxConfig {
     @Bean
     public Docket apiDocket() { //Configuração de OpenAPI/Swagger com SpringFox:
         return new Docket(DocumentationType.OAS_30)
+                .groupName("V1")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.algaworks.algafood.api"))
-                .paths(PathSelectors.any())
+                .paths(PathSelectors.ant("/v1/**"))
 //          .paths(PathSelectors.ant("/restaurantes/*"))
                 .build().
                 useDefaultResponseMessages(false)
@@ -99,7 +104,7 @@ public class SpringFoxConfig {
                         typeResolver.resolve(CollectionModel.class, CidadeModel.class),
                         CidadesModelOpenApi.class))
                 .ignoredParameterTypes(ServletWebRequest.class)
-                .apiInfo(apiInfo())
+                .apiInfo(apiInfoV1())
                 .tags(new Tag("Cidades", "Gerencia as cidades"),
                         new Tag("Cozinhas", "Gerencia as cozinhas"),
                         new Tag("Pedidos", "Gerencia os pedidos"),
@@ -112,6 +117,42 @@ public class SpringFoxConfig {
                         new Tag("Formas de pagamento", "Gerencia as formas de pagamento"),
                         new Tag("Grupos", "Gerencia os grupos de usuários"));//Criamos uma tag
     }
+
+
+    @Bean
+    public Docket apiDocketV2() {
+        var typeResolver = new TypeResolver();
+
+        return new Docket(DocumentationType.OAS_30)
+                .groupName("V2")
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.algaworks.algafood.api"))
+                .paths(PathSelectors.ant("/v2/**"))
+                .build()
+                .useDefaultResponseMessages(false)
+                .globalResponses(HttpMethod.GET, globalGetResponseMessages())
+                .globalResponses(HttpMethod.POST, globalPostResponseMessages())
+                .globalResponses(HttpMethod.PUT, globalPutResponseMessages())
+                .globalResponses(HttpMethod.DELETE, globalDeleteResponseMessages())
+                .additionalModels(typeResolver.resolve(Problem.class))
+                .ignoredParameterTypes(ServletWebRequest.class,
+                        URL.class, URI.class, URLStreamHandler.class, Resource.class,
+                        File.class, InputStream.class)
+                .directModelSubstitute(Pageable.class, PageableModelOpenApi.class)
+                .directModelSubstitute(Links.class, LinksModelOpenApi.class)
+
+                .alternateTypeRules(AlternateTypeRules.newRule(
+                        typeResolver.resolve(PagedModel.class, CozinhaModelV2.class),
+                        CozinhasModelV2OpenApi.class))
+
+                .alternateTypeRules(AlternateTypeRules.newRule(
+                        typeResolver.resolve(CollectionModel.class, CidadeModelV2.class),
+                        CidadesModelV2OpenApi.class))
+                .apiInfo(apiInfoV2())
+                .tags(new Tag("Cidades", "Gerencia as cidades"),
+                        new Tag("Cozinhas", "Gerencia as cozinhas"));
+    }
+
 
     //Todos os endpoint com o verbo GET podem retornar os códigos abaixo...
     private List<Response> globalGetResponseMessages(){
@@ -208,7 +249,9 @@ public class SpringFoxConfig {
         );
     }
 
-    public ApiInfo apiInfo() {
+
+
+    private ApiInfo apiInfoV1() {
         return new ApiInfoBuilder()
                 .title("AlgaFood API")
                 .description("API aberta para clientes e restaurantes")
@@ -216,6 +259,16 @@ public class SpringFoxConfig {
                 .contact(new Contact("AlgaWorks", "https://www.algaworks.com", "contato@algaworks.com"))
                 .build();
     }
+
+    private ApiInfo apiInfoV2() {
+        return new ApiInfoBuilder()
+                .title("AlgaFood API")
+                .description("API aberta para clientes e restaurantes")
+                .version("2")
+                .contact(new Contact("AlgaWorks", "https://www.algaworks.com", "contato@algaworks.com"))
+                .build();
+    }
+
 
     //Criamos a referência da representação do Problem...
     private Consumer<RepresentationBuilder> getProblemaModelReference() {
