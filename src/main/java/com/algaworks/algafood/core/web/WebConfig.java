@@ -1,15 +1,23 @@
 package com.algaworks.algafood.core.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.Filter;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private ApiDeprecationHandler apiDeprecationHandler; //Usado para adicionar um header notificando que a API será depreciada..
+
+    @Autowired
+    ApiRetirementHandler apiRetirementHandler; //Usando para alteração as resposta das requisições para 410 GONE
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -34,6 +42,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public Filter shallowEtagHeaderFilter() {
         return new ShallowEtagHeaderFilter();
+    }
+
+    //Filtro para interceptar as requisições e alterar um header
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(apiRetirementHandler);
     }
 
 }

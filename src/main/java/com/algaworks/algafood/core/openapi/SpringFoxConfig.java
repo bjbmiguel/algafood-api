@@ -45,7 +45,7 @@ public class SpringFoxConfig {
 
     TypeResolver typeResolver = new TypeResolver();
 
-    @Bean
+    //@Bean  //Desligando a documentação...
     public Docket apiDocket() { //Configuração de OpenAPI/Swagger com SpringFox:
         return new Docket(DocumentationType.OAS_30)
                 .groupName("V1")
@@ -253,12 +253,13 @@ public class SpringFoxConfig {
 
     private ApiInfo apiInfoV1() {
         return new ApiInfoBuilder()
-                .title("AlgaFood API")
-                .description("API aberta para clientes e restaurantes")
+                .title("AlgaFood API (Depreciada)")
+                .description("API aberta para clientes e restaurantes.<br>"
+                        + "<strong>Essa versão da API está depreciada e deixará de existir a partir de 01/01/2021. "
+                        + "Use a versão mais atual da API.")
                 .version("1")
                 .contact(new Contact("AlgaWorks", "https://www.algaworks.com", "contato@algaworks.com"))
-                .build();
-    }
+                .build();}
 
     private ApiInfo apiInfoV2() {
         return new ApiInfoBuilder()
