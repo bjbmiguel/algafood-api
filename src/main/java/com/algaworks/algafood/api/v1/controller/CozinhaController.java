@@ -8,6 +8,7 @@ import com.algaworks.algafood.api.v1.openapi.controller.CozinhaControllerOpenApi
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.util.Optional;
 @RestController
 // Esta anotação define a classe num controlador de modos que ela possa lidar com requisições HTTP e devolver respostas...
 @RequestMapping("/v1/cozinhas")
+@Slf4j
 // Esta anotação é usada para mapear as req HTTP feitas neste controller, ou seja, todas as reqs. /cozinhas vão cair aqui...
 public class CozinhaController implements CozinhaControllerOpenApi {
 
@@ -48,6 +50,9 @@ public class CozinhaController implements CozinhaControllerOpenApi {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<CozinhaModel> listar(@PageableDefault(size = 10) Pageable pageable) {
+        log.info("Consultando cozinhas com páginas de {} de registros", pageable.getPageSize());
+
+
 
         Page<Cozinha> cozinhasPage = cozinhaRepository.findAll(pageable);
 
