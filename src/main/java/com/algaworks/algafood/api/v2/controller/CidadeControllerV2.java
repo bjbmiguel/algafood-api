@@ -83,8 +83,6 @@ public class CidadeControllerV2 implements CidadeControllerV2OpenApi {
     }
 
 
-
-
     @Override
     @DeleteMapping(value = "/{cidadeId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
