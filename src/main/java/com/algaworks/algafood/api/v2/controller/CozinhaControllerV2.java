@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(value = "/v2/cozinhas", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/v2/cozinhas")
 public class CozinhaControllerV2 implements CozinhaControllerV2OpenApi {
 
     @Autowired
@@ -40,7 +40,7 @@ public class CozinhaControllerV2 implements CozinhaControllerV2OpenApi {
     private PagedResourcesAssembler<Cozinha> pagedResourcesAssembler;
 
     @Override
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<CozinhaModelV2> listar(@PageableDefault(size = 10) Pageable pageable) {
         Page<Cozinha> cozinhasPage = cozinhaRepository.findAll(pageable);
 
@@ -51,7 +51,7 @@ public class CozinhaControllerV2 implements CozinhaControllerV2OpenApi {
     }
 
     @Override
-    @GetMapping("/{cozinhaId}")
+    @GetMapping(path = "/{cozinhaId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CozinhaModelV2 buscar(@PathVariable Long cozinhaId) {
         Cozinha cozinha = cadastroCozinha.hasOrNot(cozinhaId);
 
@@ -59,7 +59,7 @@ public class CozinhaControllerV2 implements CozinhaControllerV2OpenApi {
     }
 
     @Override
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public CozinhaModelV2 adicionar(@RequestBody @Valid CozinhaInputV2 cozinhaInput) {
         Cozinha cozinha = cozinhaInputDisassembler.toDomainObject(cozinhaInput);
@@ -69,7 +69,7 @@ public class CozinhaControllerV2 implements CozinhaControllerV2OpenApi {
     }
 
     @Override
-    @PutMapping("/{cozinhaId}")
+    @PutMapping(path = "/{cozinhaId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CozinhaModelV2 atualizar(@PathVariable Long cozinhaId,
                                     @RequestBody @Valid CozinhaInputV2 cozinhaInput) {
         Cozinha cozinhaAtual = cadastroCozinha.hasOrNot(cozinhaId);
