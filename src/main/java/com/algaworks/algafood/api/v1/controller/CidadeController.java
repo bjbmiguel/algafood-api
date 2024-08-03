@@ -49,6 +49,7 @@ public class CidadeController implements CidadeControllerOpenApi {
     @ResponseStatus(HttpStatus.CREATED)
     public CidadeModel adicionar(@RequestBody @Valid CidadeInput cidadeInput) {
         try {
+
             Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInput);
 
             cidade = cadastrarCidadeService.salvar(cidade);
