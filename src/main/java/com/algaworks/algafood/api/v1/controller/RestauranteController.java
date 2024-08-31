@@ -7,6 +7,7 @@ import com.algaworks.algafood.api.v1.model.RestauranteModel;
 import com.algaworks.algafood.api.v1.model.input.RestauranteInput;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteControllerOpenApi;
 import com.algaworks.algafood.api.v1.assembler.*;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.core.validation.ValidacaoException;
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
@@ -68,6 +69,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
 
     //@JsonView(RestauranteView.Resumo.class)
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<RestauranteBasicoModel> listar() {
         return restauranteBasicoModelAssembler.toCollectionModel(restauranteRepository.findAll());
@@ -75,6 +77,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     //Projecao com parâmetro...
     //@JsonView(RestauranteView.ApenasNomes.class)
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(params = "projecao=apenas-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     public  CollectionModel<RestauranteApenasNomeModel> listarApenasNomes() {
         return restauranteApenasNomeModelAssembler.toCollectionModel(restauranteRepository.findAll());
@@ -130,24 +133,28 @@ public class RestauranteController implements RestauranteControllerOpenApi {
         return listar();
     }
 */
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(path = "/por-taxa-frete", produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<RestauranteModel> restaurantePorTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal));
     }
 
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(path = "/por-nome-e-taxa-frete", produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<RestauranteModel> findTxt(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findWithCriteria(nome, taxaFreteInicial, taxaFreteFinal));
     }
 
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(path = "/com-frete-gratis", produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<RestauranteModel> restaurantesComFreteGratis(String nome) {
 
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.findComFreteGratis(nome));
     }
 
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(path = "/por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<RestauranteModel> restaurantePorNome(String nome, Long cozinhaId) {
 
@@ -160,17 +167,20 @@ public class RestauranteController implements RestauranteControllerOpenApi {
         return restauranteRepository.readFirstRestauranteByNomeContaining(nome);
     }
 
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(path = "/primeiro" , produces = MediaType.APPLICATION_JSON_VALUE)
     public Optional<RestauranteModel> buscarPrimeiro() {
         return Optional.of(restauranteModelAssembler.toModel(restauranteRepository.buscarPrimeiro().get()));
     }
 
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(path = "/top2-por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<RestauranteModel> restaurantesTop2PorNome(String nome) {
         return restauranteModelAssembler.toCollectionModel(restauranteRepository.streamTop2ByNomeContaining(nome));
     }
 
 
+    @CheckSecurity.Restaurantes.PodeConsultar
     @GetMapping(value = "/{restauranteId}")
     public RestauranteModel buscar(@PathVariable Long restauranteId) {
 
@@ -179,6 +189,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
     }
 
     //Normalmente
+    @CheckSecurity.Restaurantes.PodeEditar
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED) // 201
     // Usamos o ? para aceitar qualquer tipo de parâmetro...
@@ -197,6 +208,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
     }
 
 
+    @CheckSecurity.Restaurantes.PodeEditar
     @PutMapping(path = "/{restauranteId}",  produces = MediaType.APPLICATION_JSON_VALUE)
     public RestauranteModel atualizar(@PathVariable Long restauranteId,
                                  @RequestBody @Valid RestauranteInput restauranteInput) {
@@ -219,6 +231,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
     }
 
     // A idea é atualizar somente as propriedades que foram especificadas no corpo da requisição...
+    @CheckSecurity.Restaurantes.PodeEditar
     @PatchMapping(path = "/{restauranteId}", produces = MediaType.APPLICATION_JSON_VALUE) // Vai atender requis HTTP do tipi PATCH...
     public RestauranteModel atualizarParcial(@PathVariable Long restauranteId,
                                         @RequestBody Map<String, Object> campos, HttpServletRequest request) {
@@ -280,6 +293,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @DeleteMapping(value = "/{restauranteId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public void remover(@PathVariable Long restauranteId) {
         //@PathVariable vai extrair os valores da url e fazer o bind  de forma automática para o parâmetro cozinhaId
 
@@ -288,6 +302,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @PutMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public ResponseEntity<Void>  ativar(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.ativar(restauranteId);
 
@@ -296,6 +311,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @DeleteMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public ResponseEntity<Void>  inativar(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.inativar(restauranteId);
         return ResponseEntity.noContent().build();
@@ -304,6 +320,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @PutMapping("/{restauranteId}/fechamento") //Modelando uma regra de negócio como um recurso
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public ResponseEntity<Void> fechar(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.fechar(restauranteId);
         return ResponseEntity.noContent().build();
@@ -311,6 +328,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @PutMapping("/{restauranteId}/abrir") //Modelando uma regra de negócio como um recurso
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public ResponseEntity<Void> abrir(@PathVariable Long restauranteId) {
         cadastratarRestauranteService.abrir(restauranteId);
 
@@ -319,6 +337,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @PutMapping("/ativacoes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public void ativarMultiplos(@RequestBody List<Long> restauranteIds) {
         try {
             cadastratarRestauranteService.ativar(restauranteIds);
@@ -329,6 +348,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 
     @DeleteMapping("/ativacoes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeEditar
     public void inativarMultiplos(@RequestBody List<Long> restauranteIds) {
         try {
             cadastratarRestauranteService.inativar(restauranteIds);

@@ -13,13 +13,28 @@ public @interface CheckSecurity {
 
         @Target(ElementType.METHOD) //seu escopo de ação, aplicada somente em métodos
         @Retention(RetentionPolicy.RUNTIME) //vai ser lida em tempo de execução...
-        @PreAuthorize("isAuthenticated()")
+        @PreAuthorize("hasAuthority('SCOPE_READ') and isAuthenticated()")
         public @interface PodeConsultar { }
 
         @Target(ElementType.METHOD) //seu escopo de ação, aplicada somente em métodos
         @Retention(RetentionPolicy.RUNTIME) //vai ser lida em tempo de execução...
-        @PreAuthorize("hasAuthority('EDITAR_COZINHAS')")
+        @PreAuthorize("hasAuthority('SCOPE_WRITE') and hasAuthority('EDITAR_COZINHAS')")
         public @interface PodeEditar { }
+
+    }
+
+
+    public @interface Restaurantes{
+
+        @Target(ElementType.METHOD)
+        @Retention(RetentionPolicy.RUNTIME)
+        @PreAuthorize("hasAuthority('SCOPE_WRITE') and  hasAuthority('EDITAR_RESTAURANTES')")
+        public @interface PodeEditar { }
+
+        @Target(ElementType.METHOD)
+        @Retention(RetentionPolicy.RUNTIME)
+        @PreAuthorize("hasAuthority('SCOPE_READ') and isAuthenticated()")
+        public @interface PodeConsultar { }
 
     }
 }
