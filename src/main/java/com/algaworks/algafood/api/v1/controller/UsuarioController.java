@@ -11,6 +11,7 @@ import com.algaworks.algafood.domain.service.CadastrarUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,6 +30,8 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioInputDisassembler usuarioInputDisassembler;
+
+
 
 
     @GetMapping // Mapeamos as requ HTTP do tipo GET para este método
@@ -79,7 +82,6 @@ public class UsuarioController {
     @PutMapping("/{usuarioId}/senha")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void alterarSenha(@PathVariable Long usuarioId, @RequestBody @Valid SenhaInput senhaInput) {
-
         cadastrarUsuarioService.alterarSenha(usuarioId, senhaInput.getSenhaAtual(), senhaInput.getNovaSenha());
     }
 

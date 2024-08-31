@@ -5,6 +5,9 @@ import com.algaworks.algafood.api.v1.assembler.CozinhaModelAssembler;
 import com.algaworks.algafood.api.v1.model.CozinhaModel;
 import com.algaworks.algafood.api.v1.model.input.CozinhaInput;
 import com.algaworks.algafood.api.v1.openapi.controller.CozinhaControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
+import com.algaworks.algafood.core.security.PodeConsultarCozinhas;
+import com.algaworks.algafood.core.security.PodeEditarCozinhas;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
@@ -18,6 +21,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -48,11 +52,11 @@ public class CozinhaController implements CozinhaControllerOpenApi {
     @Autowired
     private PagedResourcesAssembler<Cozinha> pagedResourcesAssembler;
 
+    @CheckSecurity.Cozinhas.PodeConsultar//Só lista cozinha quem estiver autenticado
+    @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<CozinhaModel> listar(@PageableDefault(size = 10) Pageable pageable) {
         log.info("Consultando cozinhas com páginas de {} de registros", pageable.getPageSize());
-
-
 
         Page<Cozinha> cozinhasPage = cozinhaRepository.findAll(pageable);
 
@@ -62,25 +66,29 @@ public class CozinhaController implements CozinhaControllerOpenApi {
         return cozinhasPagedModel;
     }
 
+    @CheckSecurity.Cozinhas.PodeConsultar
     @GetMapping(path = "/{cozinhaId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CozinhaModel buscar(@PathVariable Long cozinhaId) {  // Será feito um bind de forma automática
 
         return cozinhaModelAssembler.toModel(cadastroCozinhaService.hasOrNot(cozinhaId));
     }
 
+    @CheckSecurity.Cozinhas.PodeConsultar
     @GetMapping(path = "/primeiro", produces = MediaType.APPLICATION_JSON_VALUE)
     public Optional<CozinhaModel> buscarPrimeiro() {
 
         return Optional.of(cozinhaModelAssembler.toModel(cozinhaRepository.buscarPrimeiro().get()));
     }
 
-    @GetMapping(value = "/por-nome")
+    @CheckSecurity.Cozinhas.PodeConsultar
     //--> nome --> nome - Retorna uma lista
+    @GetMapping(value = "/por-nome")
     public CollectionModel<CozinhaModel> buscarPorNome(String nome) { //o nome virá por "query String"
 
         return cozinhaModelAssembler.toCollectionModel(cozinhaRepository.findTodasByNomeContaining(nome));
     }
 
+    @CheckSecurity.Cozinhas.PodeConsultar
     @GetMapping(path = "/unico-por-nome", produces = MediaType.APPLICATION_JSON_VALUE)
     //--> nome --> nome Retorna uma única instância
     public Optional<CozinhaModel> buscarPorNomeUnico(String nome) { //o nome virá por "query String"
@@ -91,12 +99,15 @@ public class CozinhaController implements CozinhaControllerOpenApi {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     // Usamos a anotação @PostMapping que é um mapeamento do método POST HTTP
     @ResponseStatus(HttpStatus.CREATED) //Costumizamos o status da resposta... para 201
+    @CheckSecurity.Cozinhas.PodeEditar
+    @Override
     public CozinhaModel adicionar(@RequestBody @Valid CozinhaInput cozinhaInput) { //Anotamos o parâmetro "cozinha"
         Cozinha cozinha = cozinhaInputDisassembler.toDomainObject(cozinhaInput);
         return cozinhaModelAssembler.toModel(cadastroCozinhaService.salvar(cozinha));
     }
 
     @PutMapping(path = "/{cozinhaId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @CheckSecurity.Cozinhas.PodeEditar
     public CozinhaModel atualizar(@PathVariable Long cozinhaId, @RequestBody @Valid CozinhaInput cozinhaInput) {
 
         Cozinha cozinhaAtual = cadastroCozinhaService.hasOrNot(cozinhaId);
@@ -108,6 +119,7 @@ public class CozinhaController implements CozinhaControllerOpenApi {
 
 
     @DeleteMapping(path = "/{cozinhaId}")
+    @CheckSecurity.Cozinhas.PodeEditar
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void remover(@PathVariable Long cozinhaId) {
 

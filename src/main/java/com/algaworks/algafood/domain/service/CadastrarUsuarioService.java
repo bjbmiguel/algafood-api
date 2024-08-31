@@ -9,6 +9,7 @@ import com.algaworks.algafood.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ public class CadastrarUsuarioService {
     public static final String MSG_USUARIO_EM_USO = "Usuário de código %d não pode ser removido, pós está em uso";
     @Autowired //Injetamos o componente  EstadoRepository...
     UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<Usuario> listar() {
         return usuarioRepository.findAll();
@@ -48,7 +52,7 @@ public class CadastrarUsuarioService {
             throw new NegocioException(
                     String.format("Já existe um usuário cadastrado com o e-mail %s", usuario.getEmail()));
         }
-
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }
 
@@ -92,11 +96,18 @@ public class CadastrarUsuarioService {
     public void alterarSenha(Long usuarioId, String senhaAtual, String novaSenha) {
         Usuario usuario = findById(usuarioId);
 
+        if(!passwordEncoder.matches(senhaAtual, usuario.getSenha())){
+            throw new NegocioException("Senha atual informada não coincide com a senha do usuário.");
+        }
+        /*
         if (usuario.senhaNaoCoincideCom(senhaAtual)) {
             throw new NegocioException("Senha atual informada não coincide com a senha do usuário.");
         }
 
-        usuario.setSenha(novaSenha);
+         */
+
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+
     }
 
     @Transactional
