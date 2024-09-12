@@ -1,8 +1,6 @@
 package com.algaworks.algafood.domain.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -12,6 +10,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Embeddable
 @Builder
+//@NoArgsConstructor  // Para evitar No default constructor for entity:  : com.algaworks.algafood.domain.model.RestauranteUsuarioId
+@AllArgsConstructor
 public class RestauranteUsuarioId implements Serializable {
 
     @EqualsAndHashCode.Include
@@ -21,7 +21,5 @@ public class RestauranteUsuarioId implements Serializable {
     @EqualsAndHashCode.Include
     @Column(name = "usuario_id")
     private Long usuarioId;
-
-
 
 }

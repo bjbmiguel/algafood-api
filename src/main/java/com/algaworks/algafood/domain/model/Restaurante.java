@@ -70,7 +70,7 @@ public class Restaurante {
     @JoinTable(name = "restaurante_usuario_responsavel",
             joinColumns = @JoinColumn(name = "restaurante_id"),
             inverseJoinColumns = @JoinColumn(name = "usuario_id"))
-    Set<Usuario> usuarios = new HashSet<>(); // Contém os usuários responsáveis por um rest específico...
+    Set<Usuario> responsaveis = new HashSet<>(); // Contém os usuários responsáveis por um rest específico...
 
     public void ativar() {
         this.setAtivo(true);
@@ -114,11 +114,11 @@ public class Restaurante {
     }
 
     public boolean adicionarUsuarioResponsavel(Usuario usuario) {
-        return getUsuarios().add(usuario);
+        return getResponsaveis().add(usuario);
     }
 
     public boolean removerUsuarioResponsavel(Usuario usuario) {
-        return getUsuarios().remove(usuario);
+        return getResponsaveis().remove(usuario);
     }
 
     public Optional<FormaPagamento> validateFormaPagamentoById(Long formaPagamentoId) {

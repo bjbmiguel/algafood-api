@@ -4,6 +4,7 @@ import com.algaworks.algafood.api.v1.assembler.FotoProdutoModelAssembler;
 import com.algaworks.algafood.api.v1.model.FotoProdutoModel;
 import com.algaworks.algafood.api.v1.model.input.FotoProdutoInput;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteProdutoFotoControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.FotoProduto;
 import com.algaworks.algafood.domain.model.Produto;
@@ -41,6 +42,7 @@ public class RestauranteProdutoFotoController implements RestauranteProdutoFotoC
     private FotoStorageService fotoStorage;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @CheckSecurity.Restaurantes.PodeConsultar
     public FotoProdutoModel buscar(@PathVariable Long restauranteId,
                                                   @PathVariable Long produtoId){
 
@@ -50,6 +52,7 @@ public class RestauranteProdutoFotoController implements RestauranteProdutoFotoC
     }
 
     @GetMapping(produces = MediaType.ALL_VALUE)
+    @CheckSecurity.Restaurantes.PodeConsultar
     public ResponseEntity<?> servirFoto(@PathVariable Long restauranteId,
                                                           @PathVariable Long produtoId,
                                                           @RequestHeader(name = "accept") String acceptHeader) throws HttpMediaTypeNotAcceptableException {
@@ -112,6 +115,7 @@ public class RestauranteProdutoFotoController implements RestauranteProdutoFotoC
 */
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @CheckSecurity.Restaurantes.PodeGerenciarFuncionamento
     public FotoProdutoModel atualizarFoto(@PathVariable Long restauranteId,
                                           @PathVariable Long produtoId, @Valid
                                               FotoProdutoInput fotoProdutoInput,
@@ -135,6 +139,7 @@ public class RestauranteProdutoFotoController implements RestauranteProdutoFotoC
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeGerenciarFuncionamento
     public void excluir(@PathVariable Long restauranteId,
                         @PathVariable Long produtoId) {
 

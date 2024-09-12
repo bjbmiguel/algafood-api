@@ -11,6 +11,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class RestauranteUsuario {
 
+
     @EmbeddedId
     RestauranteUsuarioId id;
 

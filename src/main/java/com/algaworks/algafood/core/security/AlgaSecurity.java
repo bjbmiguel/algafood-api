@@ -1,5 +1,8 @@
 package com.algaworks.algafood.core.security;
 
+import com.algaworks.algafood.domain.repository.RestauranteRepository;
+import com.algaworks.algafood.domain.repository.RestauranteUsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -7,6 +10,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AlgaSecurity {
+
+    @Autowired
+    private RestauranteRepository restauranteRepository;
+
+    @Autowired
+    private RestauranteUsuarioRepository restauranteUsuarioRepository;
 
     public Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
@@ -17,4 +26,15 @@ public class AlgaSecurity {
         return jwt.getClaim("usuario_id");
     }
 
+    public boolean verificaRespDoRestaurantePorPedido(String pedidoId){
+        return restauranteUsuarioRepository.findResponsavelByPedido(pedidoId, getUsuarioId()).isPresent();
+    }
+
+    public boolean gerenciaRestaurante(Long restauranteId){
+        if (restauranteId == null) {
+            return false;
+        }
+
+        return restauranteRepository.existsResponsavel(restauranteId, getUsuarioId());
+    }
 }

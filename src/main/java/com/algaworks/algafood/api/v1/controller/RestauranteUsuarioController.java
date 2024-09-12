@@ -4,6 +4,7 @@ import com.algaworks.algafood.api.v1.FactoryLinks;
 import com.algaworks.algafood.api.v1.assembler.UsuarioModelAssembler;
 import com.algaworks.algafood.api.v1.model.UsuarioModel;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteUsuarioResponsavelControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.model.RestauranteUsuario;
 import com.algaworks.algafood.domain.model.Usuario;
@@ -39,12 +40,13 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
     FactoryLinks links;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @CheckSecurity.Restaurantes.PodeConsultar
     public CollectionModel<UsuarioModel> listar(@PathVariable Long restauranteId) {
 
         var restaurante = cadastratarRestauranteService.findById(restauranteId);
 
         CollectionModel<UsuarioModel> usuariosModel = usuarioModelAssembler
-                .toCollectionModel(restaurante.getUsuarios())
+                .toCollectionModel(restaurante.getResponsaveis())
                 .removeLinks()
                 .add(links.linkToRestauranteResponsaveis(restauranteId))
                 .add(links.linkToRestauranteResponsavelAssociacao(restauranteId, "associar"));
@@ -59,6 +61,7 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
 
     @PutMapping("/{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeGerenciarCadastro
     public ResponseEntity<Void> adicionarResponsavel(@PathVariable Long restauranteId,
                                                      @PathVariable Long usuarioId) {
 
@@ -73,6 +76,7 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
 
     @DeleteMapping("/{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Restaurantes.PodeGerenciarCadastro
     public ResponseEntity<Void>  removerResponsavel(@PathVariable Long restauranteId, @PathVariable
     Long usuarioId) {
 
