@@ -4,6 +4,7 @@ import com.algaworks.algafood.api.v1.FactoryLinks;
 import com.algaworks.algafood.api.v1.assembler.UsuarioModelAssembler;
 import com.algaworks.algafood.api.v1.model.UsuarioModel;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteUsuarioResponsavelControllerOpenApi;
+import com.algaworks.algafood.core.security.AlgaSecurity;
 import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.model.RestauranteUsuario;
@@ -39,6 +40,9 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
     @Autowired
     FactoryLinks links;
 
+    @Autowired
+    private AlgaSecurity algaSecurity;
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @CheckSecurity.Restaurantes.PodeConsultar
     public CollectionModel<UsuarioModel> listar(@PathVariable Long restauranteId) {
@@ -47,14 +51,21 @@ public class RestauranteUsuarioController implements RestauranteUsuarioResponsav
 
         CollectionModel<UsuarioModel> usuariosModel = usuarioModelAssembler
                 .toCollectionModel(restaurante.getResponsaveis())
-                .removeLinks()
-                .add(links.linkToRestauranteResponsaveis(restauranteId))
-                .add(links.linkToRestauranteResponsavelAssociacao(restauranteId, "associar"));
+                .removeLinks();
 
-        usuariosModel.getContent().stream().forEach(usuarioModel -> {
-            usuarioModel.add(links.linkToRestauranteResponsavelDesassociacao(
-                    restauranteId, usuarioModel.getId(), "desassociar"));
-        });
+                //.add(links.linkToRestauranteResponsaveis(restauranteId)) //Estava usar isso...
+                //.add(links.linkToRestauranteResponsavelAssociacao(restauranteId, "associar"));//Estava usar isso...
+
+        if (algaSecurity.podeGerenciarCadastroRestaurantes()) {
+
+            usuariosModel.add(links.linkToRestauranteResponsavelAssociacao(restauranteId, "associar"));
+            usuariosModel.getContent().stream().forEach(usuarioModel -> {
+                usuarioModel.add(links.linkToRestauranteResponsavelDesassociacao(
+                        restauranteId, usuarioModel.getId(), "desassociar"));
+            });
+        }
+
+
 
         return usuariosModel;
     }

@@ -7,6 +7,7 @@ import com.algaworks.algafood.api.v1.assembler.CidadeModelAssembler;
 import com.algaworks.algafood.api.v1.model.CidadeModel;
 import com.algaworks.algafood.api.v1.model.input.CidadeInput;
 import com.algaworks.algafood.api.v1.openapi.controller.CidadeControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Cidade;
@@ -34,12 +35,14 @@ public class CidadeController implements CidadeControllerOpenApi {
     private CidadeInputDisassembler cidadeInputDisassembler;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE) // Mapeamos as requ HTTP do tipo GET para este método
+    @CheckSecurity.Cidades.PodeConsultar
     public CollectionModel<CidadeModel> listar() {
         var todasCidades = cadastrarCidadeService.listar();
         return cidadeModelAssembler.toCollectionModel(todasCidades);
     }
 
     @GetMapping(path = "/{cidadeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @CheckSecurity.Cidades.PodeConsultar
     public CidadeModel buscar(@PathVariable Long cidadeId) {
         var cidade = cadastrarCidadeService.hasOrNot(cidadeId);
         return cidadeModelAssembler.toModel(cidade);
@@ -47,6 +50,7 @@ public class CidadeController implements CidadeControllerOpenApi {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @CheckSecurity.Cidades.PodeEditar
     public CidadeModel adicionar(@RequestBody @Valid CidadeInput cidadeInput) {
         try {
             Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInput);
@@ -63,6 +67,7 @@ public class CidadeController implements CidadeControllerOpenApi {
     }
 
     @PutMapping(path = "/{cidadeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @CheckSecurity.Cidades.PodeEditar
     public CidadeModel atualizar(@PathVariable Long cidadeId, @RequestBody @Valid CidadeInput cidadeInput) {
         try {
             Cidade cidadeAtual = cadastrarCidadeService.hasOrNot(cidadeId);
@@ -80,6 +85,7 @@ public class CidadeController implements CidadeControllerOpenApi {
 
     @DeleteMapping(value = "/{cidadeId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Cidades.PodeEditar
     public void remover(@PathVariable Long cidadeId) {
 
         cadastrarCidadeService.excluir(cidadeId);

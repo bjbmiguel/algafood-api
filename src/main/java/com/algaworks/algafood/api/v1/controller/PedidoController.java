@@ -136,6 +136,7 @@ public class PedidoController implements PedidoControllerOpenApi {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @CheckSecurity.Pedidos.PodeCriar
     public PedidoModel adicionar(@RequestBody @Valid PedidoInput pedidoInput) {
 
         try {

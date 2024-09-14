@@ -3,6 +3,7 @@ package com.algaworks.algafood.api.v1.assembler;
 import com.algaworks.algafood.api.v1.FactoryLinks;
 import com.algaworks.algafood.api.v1.model.PedidoModel;
 import com.algaworks.algafood.api.v1.controller.PedidoController;
+import com.algaworks.algafood.core.security.AlgaSecurity;
 import com.algaworks.algafood.domain.model.Pedido;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
     @Autowired
     FactoryLinks factoryLinks;
 
+    @Autowired
+    private AlgaSecurity algaSecurity;
+
     public PedidoModelAssembler() {
         super(PedidoController.class, PedidoModel.class);
     }
@@ -29,38 +33,67 @@ public class PedidoModelAssembler extends RepresentationModelAssemblerSupport<Pe
         var pedidoModel = createModelWithId(pedido.getCodigo(), pedido);
         modelMapper.map(pedido, pedidoModel);
 
-        pedidoModel.add(factoryLinks.linkToPedidos("pedidos"));
+        // Não usei o método algaSecurity.podePesquisarPedidos(clienteId, restauranteId) aqui,
+        // porque na geração do link, não temos o id do cliente e do restaurante,
+        // então precisamos saber apenas se a requisição está autenticada e tem o escopo de leitura
+        if (algaSecurity.podePesquisarPedidos()) {
+            pedidoModel.add(factoryLinks.linkToPedidos("pedidos"));
 
-        //Adicionando links de forma condicional..
-        if (pedido.podeSerConfirmado()) {
-            pedidoModel.add(factoryLinks.linkToConfirmacaoPedido(pedido.getCodigo(), "confirmar"));
         }
 
-        //Adicionando links de forma condicional..
-        if (pedido.podeSerCancelado()) {
-            pedidoModel.add(factoryLinks.linkToCancelamentoPedido(pedido.getCodigo(), "cancelar"));
+        if (algaSecurity.podeGerenciarPedidos(pedido.getCodigo())) { //Renderizams os links abaixo de acordo com as permissões do user.
+            //Adicionando links de forma condicional..
+            if (pedido.podeSerConfirmado()) {
+                pedidoModel.add(factoryLinks.linkToConfirmacaoPedido(pedido.getCodigo(), "confirmar"));
+            }
+
+            //Adicionando links de forma condicional..
+            if (pedido.podeSerCancelado()) {
+                pedidoModel.add(factoryLinks.linkToCancelamentoPedido(pedido.getCodigo(), "cancelar"));
+            }
+
+            //Adicionando links de forma condicional..
+            if (pedido.podeSerEntregue()) {
+                pedidoModel.add(factoryLinks.linkToEntregaPedido(pedido.getCodigo(), "entregar"));
+            }
         }
 
-        //Adicionando links de forma condicional..
-        if (pedido.podeSerEntregue()) {
-            pedidoModel.add(factoryLinks.linkToEntregaPedido(pedido.getCodigo(), "entregar"));
+
+        if (algaSecurity.podeConsultarRestaurantes()) {
+            pedidoModel.getRestaurante().add(
+                    factoryLinks.linkToRestaurante(pedido.getRestaurante().getId()));
         }
-        pedidoModel.getRestaurante().add(
-                factoryLinks.linkToRestaurante(pedido.getRestaurante().getId()));
 
-        pedidoModel.getCliente().add(
-                factoryLinks.linkToUsuario(pedido.getCliente().getId()));
 
-        pedidoModel.getFormaPagamento().add(
-                factoryLinks.linkToFormaPagamento(pedido.getFormaPagamento().getId()));
+        if (algaSecurity.podeConsultarUsuariosGruposPermissoes()) {
+            pedidoModel.getCliente().add(
+                    factoryLinks.linkToUsuario(pedido.getCliente().getId()));
+        }
 
-        pedidoModel.getEndereco().getCidade().add(
-                factoryLinks.linkToCidade(pedido.getEndereco().getCidade().getId()));
+        if (algaSecurity.podeConsultarFormasPagamento()) {
+            pedidoModel.getFormaPagamento().add(
+                    factoryLinks.linkToFormaPagamento(pedido.getFormaPagamento().getId()));
 
-        pedidoModel.getItens().forEach(item -> {
-            item.add(factoryLinks.linkToProduto(
-                    pedidoModel.getRestaurante().getId(), item.getProdutoId(), "produto"));
-        });
+        }
+
+
+
+        if (algaSecurity.podeConsultarCidades()) {
+            pedidoModel.getEndereco().getCidade().add(
+                    factoryLinks.linkToCidade(pedido.getEndereco().getCidade().getId()));
+
+        }
+
+
+        // Quem pode consultar restaurantes, também pode consultar os produtos dos restaurantes
+        if (algaSecurity.podeConsultarRestaurantes()) {
+            pedidoModel.getItens().forEach(item -> {
+                item.add(factoryLinks.linkToProduto(
+                        pedidoModel.getRestaurante().getId(), item.getProdutoId(), "produto"));
+            });
+        }
+
+
 
         return pedidoModel;
     }

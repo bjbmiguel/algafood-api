@@ -10,7 +10,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Embeddable
 @Builder
-//@NoArgsConstructor  // Para evitar No default constructor for entity:  : com.algaworks.algafood.domain.model.RestauranteUsuarioId
+@NoArgsConstructor  // Para evitar No default constructor for entity:  : com.algaworks.algafood.domain.model.RestauranteUsuarioId
 @AllArgsConstructor
 public class RestauranteUsuarioId implements Serializable {
 

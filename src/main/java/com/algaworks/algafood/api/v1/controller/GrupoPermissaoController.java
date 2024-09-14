@@ -7,6 +7,8 @@ import com.algaworks.algafood.api.v1.assembler.PermissaoInputDisassembler;
 import com.algaworks.algafood.api.v1.assembler.PermissaoModelAssembler;
 import com.algaworks.algafood.api.v1.model.PermissaoModel;
 import com.algaworks.algafood.api.v1.openapi.controller.GrupoPermissaoControllerOpenApi;
+import com.algaworks.algafood.core.security.AlgaSecurity;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Grupo;
 import com.algaworks.algafood.domain.model.GrupoPermissao;
 import com.algaworks.algafood.domain.model.Permissao;
@@ -48,6 +50,12 @@ public class GrupoPermissaoController implements GrupoPermissaoControllerOpenApi
     @Autowired
     FactoryLinks links;
 
+    @Autowired
+    private AlgaSecurity algaSecurity;
+
+
+
+    @CheckSecurity.UsuariosGruposPermissoes.PodeConsultar
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public CollectionModel<PermissaoModel> listar(@PathVariable Long grupoId) {
 
@@ -57,17 +65,21 @@ public class GrupoPermissaoController implements GrupoPermissaoControllerOpenApi
         CollectionModel<PermissaoModel> permissoesModel
                 = permissaoModelAssembler.toCollectionModel(grupo.getPermissoes())
                 .removeLinks()
-                .add(links.linkToGrupoPermissoes(grupoId))
-                .add(links.linkToGrupoPermissaoAssociacao(grupoId, "associar"));
+                .add(links.linkToGrupoPermissoes(grupoId));
 
-        permissoesModel.getContent().forEach(permissaoModel -> {
-            permissaoModel.add(links.linkToGrupoPermissaoDesassociacao(
-                    grupoId, permissaoModel.getId(), "desassociar"));
-        });
+        if (algaSecurity.podeEditarUsuariosGruposPermissoes()) {
+            permissoesModel.add(links.linkToGrupoPermissaoAssociacao(grupoId, "associar"));
+            permissoesModel.getContent().forEach(permissaoModel -> {
+                permissaoModel.add(links.linkToGrupoPermissaoDesassociacao(
+                        grupoId, permissaoModel.getId(), "desassociar"));
+            });
+        }
+
 
         return permissoesModel;
     }
 
+    @CheckSecurity.UsuariosGruposPermissoes.PodeEditar
     @PutMapping(path = "/{permissaoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> adicionarPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
@@ -80,6 +92,7 @@ public class GrupoPermissaoController implements GrupoPermissaoControllerOpenApi
         return ResponseEntity.noContent().build();
     }
 
+    @CheckSecurity.UsuariosGruposPermissoes.PodeConsultar
     @DeleteMapping("/{permissaoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> removerPermissao(@PathVariable Long grupoId, @PathVariable Long permissaoId) {

@@ -5,6 +5,7 @@ import com.algaworks.algafood.api.v1.assembler.EstadoModelAssembler;
 import com.algaworks.algafood.api.v1.model.EstadoModel;
 import com.algaworks.algafood.api.v1.model.input.EstadoInput;
 import com.algaworks.algafood.api.v1.openapi.controller.EstadoControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Estado;
 import com.algaworks.algafood.domain.service.CadastrarEstadoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class EstadoController implements EstadoControllerOpenApi {
 
 
     @GetMapping // Mapeamos as requ HTTP do tipo GET para este método
+    @CheckSecurity.Estados.PodeConsultar
     public CollectionModel<EstadoModel> listar() {
 
         List<Estado> todosEstados = cadastrarEstadoService.listar();
@@ -39,6 +41,7 @@ public class EstadoController implements EstadoControllerOpenApi {
     }
 
     @GetMapping("/{estadoId}")
+    @CheckSecurity.Estados.PodeConsultar
     public EstadoModel buscar(@PathVariable Long estadoId) {
         Estado estado = cadastrarEstadoService.hasOrNot(estadoId);
 
@@ -47,6 +50,7 @@ public class EstadoController implements EstadoControllerOpenApi {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CheckSecurity.Estados.PodeEditar
     public EstadoModel adicionar(@RequestBody @Valid EstadoInput estadoInput) {
         Estado estado = estadoInputDisassembler.toDomainObject(estadoInput);
 
@@ -56,6 +60,7 @@ public class EstadoController implements EstadoControllerOpenApi {
     }
 
     @PutMapping("/{estadoId}")
+    @CheckSecurity.Estados.PodeEditar
     public EstadoModel atualizar(@PathVariable Long estadoId,
                                  @RequestBody @Valid EstadoInput estadoInput) {
         Estado estadoAtual = cadastrarEstadoService.hasOrNot(estadoId);
@@ -69,6 +74,7 @@ public class EstadoController implements EstadoControllerOpenApi {
 
     @DeleteMapping(value = "/{estadoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckSecurity.Estados.PodeEditar
     public void remover(@PathVariable Long estadoId) {
 
         cadastrarEstadoService.excluir(estadoId);
