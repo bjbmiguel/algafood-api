@@ -37,10 +37,14 @@ public class WebConfig implements WebMvcConfigurer {
         return new ShallowEtagHeaderFilter();
     }
 
+    /*
+
     //Filtro para interceptar as requisições e alterar um header
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(apiRetirementHandler);
     }
+
+     */
 
 }
