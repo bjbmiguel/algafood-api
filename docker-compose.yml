@@ -9,7 +9,6 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_USER: "root"
       MYSQL_PASSWORD: "root"
     ports:
       - "3306:3306"
@@ -18,6 +17,7 @@ services:
 
   algafood-api:
     image: algafood-api
+    command: ["/wait-for-it.sh", "algafood-mysql:3306", "-t", "30", "--", "java", "-jar", "api.jar"]
     environment:
       DB_HOST: algafood-mysql
     ports:
