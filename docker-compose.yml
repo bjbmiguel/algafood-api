@@ -36,7 +36,7 @@ services:
     build: ./nginx
     image: algafood-proxy
     ports:
-      - "81:80"
+      - "8081:80"
     networks:
       - algafood-network
     depends_on:
