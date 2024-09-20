@@ -18,7 +18,8 @@ public class CorsConfig {
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("*"));
+        //config.setAllowedOrigins(Collections.singletonList("*")); // lança  java.lang.IllegalArgumentException: When allowCredentials is true, allowedOrigins cannot contain the special value "*"
+        config.setAllowedOriginPatterns(Collections.singletonList("*")); //uma das soluções
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
 

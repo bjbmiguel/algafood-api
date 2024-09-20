@@ -4,7 +4,7 @@ lock tables cidade write, cozinha write, estado write, forma_pagamento write,
 	grupo write, grupo_permissao write, permissao write,
 	produto write, restaurante write, restaurante_forma_pagamento write,
 	restaurante_usuario_responsavel write, usuario write, usuario_grupo write,
-	pedido write, item_pedido write, foto_produto write, oauth_client_details write;
+	pedido write, item_pedido write, foto_produto write, oauth_client_details write, oauth_code write;
 
 delete from cidade;
 delete from cozinha;
@@ -23,6 +23,7 @@ delete from pedido;
 delete from item_pedido;
 delete from foto_produto;
 delete from oauth_client_details;
+delete from oauth_code;
 
 set foreign_key_checks = 1;
 
