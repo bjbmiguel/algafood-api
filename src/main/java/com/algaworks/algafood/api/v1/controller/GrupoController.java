@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -77,9 +78,11 @@ public class GrupoController implements GrupoControllerOpenApi {
     @CheckSecurity.UsuariosGruposPermissoes.PodeEditar
     @DeleteMapping(value = "/{grupoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void remover(@PathVariable Long grupoId) {
+    public ResponseEntity<Void> remover(@PathVariable Long grupoId) {
 
         cadastrarGrupoService.excluir(grupoId);
+
+        return ResponseEntity.noContent().build();
 
     }
 

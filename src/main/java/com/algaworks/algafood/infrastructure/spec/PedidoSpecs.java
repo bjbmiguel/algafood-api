@@ -3,7 +3,7 @@ package com.algaworks.algafood.infrastructure.spec;
 import javax.persistence.criteria.Predicate;
 
 import com.algaworks.algafood.domain.model.Pedido;
-import com.algaworks.algafood.domain.repository.filter.PedidoFilter;
+import com.algaworks.algafood.domain.filter.PedidoFilter;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;

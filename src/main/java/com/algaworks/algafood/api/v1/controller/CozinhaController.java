@@ -19,6 +19,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,10 +30,12 @@ import java.util.Optional;
 @RequestMapping("/v1/cozinhas")
 @Slf4j
 // Esta anotação é usada para mapear as req HTTP feitas neste controller, ou seja, todas as reqs. /cozinhas vão cair aqui...
-public class CozinhaController implements CozinhaControllerOpenApi {
+public
+class CozinhaController implements CozinhaControllerOpenApi {
 
     //TODO analisar o comportamento do usdo da anotação  @GetMapping sem argumento em dois métodos
     //TODO anaisar o comportamento do uso da anotação @RequestMapping directamente nos métodos
+
 
     @Autowired
     private CozinhaRepository cozinhaRepository;
@@ -118,9 +121,11 @@ public class CozinhaController implements CozinhaControllerOpenApi {
     @DeleteMapping(path = "/{cozinhaId}")
     @CheckSecurity.Cozinhas.PodeEditar
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void remover(@PathVariable Long cozinhaId) {
+    public ResponseEntity<Void> remover(@PathVariable Long cozinhaId) {
 
         cadastroCozinhaService.excluir(cozinhaId);
+
+        return ResponseEntity.noContent().build();
 
     }
 

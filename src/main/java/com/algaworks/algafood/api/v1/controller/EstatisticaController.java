@@ -75,4 +75,5 @@ public class EstatisticaController implements EstatisticasControllerOpenApi {
 
     public static class EstatisticasModel extends RepresentationModel<EstatisticasModel> {
     }
+
 }

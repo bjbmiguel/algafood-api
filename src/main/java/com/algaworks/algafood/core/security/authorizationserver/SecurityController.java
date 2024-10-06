@@ -2,7 +2,6 @@ package com.algaworks.algafood.core.security.authorizationserver;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import springfox.documentation.service.ApiListing;
 
 @Controller
 public class SecurityController {

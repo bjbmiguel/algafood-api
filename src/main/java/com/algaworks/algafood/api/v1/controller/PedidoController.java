@@ -13,10 +13,10 @@ import com.algaworks.algafood.core.security.AlgaSecurity;
 import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
+import com.algaworks.algafood.domain.filter.PedidoFilter;
 import com.algaworks.algafood.domain.model.Pedido;
 import com.algaworks.algafood.domain.model.Usuario;
 import com.algaworks.algafood.domain.repository.PedidoRepository;
-import com.algaworks.algafood.domain.repository.filter.PedidoFilter;
 import com.algaworks.algafood.domain.service.*;
 import com.algaworks.algafood.infrastructure.spec.PedidoSpecs;
 import com.google.common.collect.ImmutableMap;
@@ -133,6 +133,7 @@ public class PedidoController implements PedidoControllerOpenApi {
 
         return pedidoModelAssembler.toModel(emissaoPedidoService.findByCodigo(codigoPedido));
     }
+
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)

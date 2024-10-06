@@ -1,16 +1,14 @@
 package com.algaworks.algafood.api.v1.model.input;
 
-import java.math.BigDecimal;
+import com.algaworks.algafood.core.validation.ValorZeroIncluiDescricao;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
-
-import com.algaworks.algafood.core.validation.ValorZeroIncluiDescricao;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import java.math.BigDecimal;
 
 @Setter
 @Getter
@@ -18,11 +16,9 @@ import lombok.Setter;
         descricaoField = "nome", descricaoObrigatoria = "Frete Grátis")
 public class RestauranteInput {
 
-    @ApiModelProperty(example = "Thai Gourmet", required = true)
     @NotBlank
     private String nome;
 
-    @ApiModelProperty(example = "12.00", required = true)
     @NotNull
     @PositiveOrZero
     private BigDecimal taxaFrete;
