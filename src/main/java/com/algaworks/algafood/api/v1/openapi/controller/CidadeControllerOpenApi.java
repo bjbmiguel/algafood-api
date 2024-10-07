@@ -2,10 +2,12 @@ package com.algaworks.algafood.api.v1.openapi.controller;
 
 import com.algaworks.algafood.api.v1.model.CidadeModel;
 import com.algaworks.algafood.api.v1.model.input.CidadeInput;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 
 //Aqui nesta interface só temos código de documentação da API
+@SecurityRequirement(name = "security_auth")
 public interface CidadeControllerOpenApi {
 
     CollectionModel<CidadeModel> listar();
