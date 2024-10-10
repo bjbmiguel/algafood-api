@@ -53,7 +53,7 @@ public class RestauranteProdutoFotoController implements RestauranteProdutoFotoC
 
     @GetMapping(produces = MediaType.ALL_VALUE)
     @CheckSecurity.Restaurantes.PodeConsultar
-    public ResponseEntity<?> servirFoto(@PathVariable Long restauranteId,
+    public ResponseEntity<?> servir(@PathVariable Long restauranteId,
                                                           @PathVariable Long produtoId,
                                                           @RequestHeader(name = "accept") String acceptHeader) throws HttpMediaTypeNotAcceptableException {
         try {
@@ -117,15 +117,13 @@ public class RestauranteProdutoFotoController implements RestauranteProdutoFotoC
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @CheckSecurity.Restaurantes.PodeGerenciarFuncionamento
     public FotoProdutoModel atualizarFoto(@PathVariable Long restauranteId,
-                                          @PathVariable Long produtoId, @Valid
-                                              FotoProdutoInput fotoProdutoInput,
-                                          @RequestPart(required = true) MultipartFile arquivo) throws IOException {
+                                          @PathVariable Long produtoId, @Valid FotoProdutoInput fotoProdutoInput) throws IOException {
 
         Produto produto = cadastroProduto.getProdutoByIdProdutoAndRestaurante(restauranteId, produtoId);
 
-        //MultipartFile arquivo = fotoProdutoInput.getArquivo();
+        MultipartFile arquivo = fotoProdutoInput.getArquivo();
 
-        FotoProduto foto = new FotoProduto();
+        var foto = new FotoProduto();
         foto.setProduto(produto);
         foto.setDescricao(fotoProdutoInput.getDescricao());
         foto.setContentType(arquivo.getContentType());
