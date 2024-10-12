@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.v1.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
@@ -12,13 +13,13 @@ import java.math.BigDecimal;
 @Relation(itemRelation = "restaurante")
 public class RestauranteModel extends RepresentationModel<RestauranteModel> {
 
-    //@JsonView({RestauranteView.Resumo.class, RestauranteView.ApenasNomes.class}) //A propriedade faz parte do resumo...
+    @Schema(example = "1")
     private Long id;
 
-    //@JsonView({RestauranteView.Resumo.class, RestauranteView.ApenasNomes.class}) //A propriedade faz parte do resumo...
+    @Schema(example = "Thai Gourmet")
     private String nome;
 
-    //@JsonView(RestauranteView.Resumo.class) //A propriedade faz parte do resumo...
+    @Schema(example = "12.00")
     private BigDecimal taxaFrete;
 
     //@JsonView(RestauranteView.Resumo.class) //A propriedade faz parte do resumo...
