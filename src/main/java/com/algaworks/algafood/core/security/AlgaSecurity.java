@@ -90,18 +90,19 @@ public class AlgaSecurity {
 
     public Long getUsuarioId() {
         Jwt jwt = (Jwt) getAuthentication().getPrincipal();
-        return jwt.getClaim("usuario_id");
+        return Long.parseLong(jwt.getClaim("usuario_id"));
     }
 
     //Método da solução do desafio
     public boolean gerenciaRestauranteDoPedido(String codigoPedido) {
         return pedidoRepository.isPedidoGerenciadoPor(codigoPedido, getUsuarioId());
     }
-    public boolean verificaRespDoRestaurantePorPedido(String pedidoId){
+
+    public boolean verificaRespDoRestaurantePorPedido(String pedidoId) {
         return restauranteUsuarioRepository.findResponsavelByPedido(pedidoId, getUsuarioId()).isPresent();
     }
 
-    public boolean gerenciaRestaurante(Long restauranteId){
+    public boolean gerenciaRestaurante(Long restauranteId) {
         if (restauranteId == null) {
             return false;
         }
@@ -109,14 +110,16 @@ public class AlgaSecurity {
         return restauranteRepository.existsResponsavel(restauranteId, getUsuarioId());
     }
 
-    public boolean usuarioAutenticadoIgual(Long usuarioId) {
-        return getUsuarioId() != null && usuarioId != null
-                && getUsuarioId().equals(usuarioId);
+    public boolean usuarioAutenticadoIgual(Long clienteId) {
+        return getUsuarioId() != null && clienteId != null
+                && getUsuarioId().equals(clienteId);
     }
+
     public boolean hasAuthority(String authorityName) {
         return getAuthentication().getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals(authorityName));
     }
+
     public boolean podeGerenciarPedidos(String codigoPedido) {
         return hasAuthority("SCOPE_WRITE") && (hasAuthority("GERENCIAR_PEDIDOS")
                 || gerenciaRestauranteDoPedido(codigoPedido));

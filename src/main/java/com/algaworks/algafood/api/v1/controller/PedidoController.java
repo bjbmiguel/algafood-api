@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ClockProvider;
 import javax.validation.Valid;
 
 @RequestMapping("/v1/pedidos")
@@ -70,14 +71,16 @@ public class PedidoController implements PedidoControllerOpenApi {
     private AlgaSecurity algaSecurity;
 
     //Pesquisa usando Specification...
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @CheckSecurity.Pedidos.PodePesquisar
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Override
-    public PagedModel<PedidoResumoModel> pesquisar(PedidoFilter pedidoFilter, @PageableDefault(size = 20) Pageable pageable) {
+    public PagedModel<PedidoResumoModel> pesquisar(PedidoFilter filtro, @PageableDefault(size = 20) Pageable pageable) {
 
-       var  pageableTraduzido = traduzirPageable(pageable);//Traduzimos um pageable mapeando as propriedades do sort...
+        //System.out.println("ClockProvider"+ pedidoFilter.getClienteId());
 
-        Page<Pedido> pedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(pedidoFilter), pageableTraduzido);
+        var pageableTraduzido = traduzirPageable(pageable);//Traduzimos um pageable mapeando as propriedades do sort...
+
+        Page<Pedido> pedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(filtro), pageableTraduzido);
 
         pedidosPage = new PageWrapper<>(pedidosPage, pageable);
 
