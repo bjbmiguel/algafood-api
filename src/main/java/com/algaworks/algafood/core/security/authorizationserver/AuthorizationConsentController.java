@@ -32,6 +32,7 @@ public class AuthorizationConsentController {
             @RequestParam(OAuth2ParameterNames.SCOPE) String scope,
             @RequestParam(OAuth2ParameterNames.STATE) String state
     ) {
+
         RegisteredClient client = this.registeredClientRepository.findByClientId(clientId);
 
         if(client == null) {
